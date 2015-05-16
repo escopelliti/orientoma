@@ -25,6 +25,8 @@ proguard/
 
 # Log Files
 *.log
+
+# Idea folders and files
 .gradle
 /local.properties
 /.idea/workspace.xml

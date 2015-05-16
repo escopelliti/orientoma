@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map>
+    <description>
+        This is a sample map used for testing purposes during the development of the navigation system.
+        All the weights between the vertices are the centimeters separating them.
+    </description>
+    <nodes>
+        <node id="1"/>
+        <node id="2"/>
+        <node id="3"/>
+        <node id="4"/>
+        <node id="5"/>
+        <node id="6"/>
+        <node id="7"/>
+        <node id="8"/>
+        <node id="9"/>
+        <node id="10"/>
+    </nodes>
+    <edges>
+        <edge src="1" dest="2" weight="25"/>
+        <edge src="2" dest="1" weight="25"/>
+        <edge src="1" dest="9" weight="35"/>
+        <edge src="9" dest="1" weight="35"/>
+        <edge src="2" dest="3" weight="26"/>
+        <edge src="3" dest="2" weight="26"/>
+        <edge src="2" dest="5" weight="20"/>
+        <edge src="5" dest="2" weight="20"/>
+        <edge src="2" dest="10" weight="24"/>
+        <edge src="10" dest="2" weight="24"/>
+        <edge src="3" dest="4" weight="20"/>
+        <edge src="4" dest="3" weight="20"/>
+        <edge src="5" dest="6" weight="30"/>
+        <edge src="6" dest="5" weight="30"/>
+        <edge src="6" dest="7" weight="22"/>
+        <edge src="7" dest="6" weight="22"/>
+        <edge src="7" dest="8" weight="27"/>
+        <edge src="8" dest="7" weight="27"/>
+        <edge src="7" dest="10" weight="25"/>
+        <edge src="10" dest="7" weight="25"/>
+        <edge src="8" dest="9" weight="40"/>
+        <edge src="9" dest="8" weight="40"/>
+        <edge src="8" dest="10" weight="30"/>
+        <edge src="10" dest="8" weight="30"/>
+    </edges>
+</map>
