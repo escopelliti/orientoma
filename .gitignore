@@ -28,6 +28,7 @@ proguard/
 
 # Idea folders and files
 .gradle
+*.iml
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
