@@ -8,7 +8,7 @@ import it.asp.orientoma.navigation.IGraphVertex;
  * Dummy class used during buildup and testing of the navigation system.
  * It provides a basic vertex object to use, which has only a name.
  */
-public class DummyVertex implements IGraphVertex {
+public class DummyVertex extends IGraphVertex {
     private String _name;
 
     public DummyVertex(String name) {

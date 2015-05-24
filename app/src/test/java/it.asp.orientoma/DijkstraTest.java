@@ -67,8 +67,7 @@ public class DijkstraTest {
 
     @Test
     public void testXmlParser() {
-        //TODO: Capisci come trasformare questo in un path relativo
-        Graph g = new Graph("C:\\Users\\Filippo\\AndroidStudioProjects\\Orientoma\\app\\src\\main\\res\\raw\\test_scenario_1.xml");
+        Graph g = new Graph("src/main/res/raw/test_scenario_1.xml");
         assertEquals("Wrong number of edges returned!", 24, g.getEdges().size());
         assertEquals("Wrong number of vertices returned!", 10, g.getVertexes().size());
 

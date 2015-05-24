@@ -1,9 +1,12 @@
 package it.asp.orientoma.navigation;
 
+import android.util.Log;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -19,10 +22,10 @@ import it.asp.orientoma.navigation.dummies.DummyVertex;
  * Created by Filippo on 16/05/2015.
  */
 public class Graph {
-    private List<IGraphVertex> _vertexes;
-    private List<IGraphEdge> _edges;
+    private List<? extends IGraphVertex> _vertexes;
+    private List<? extends IGraphEdge> _edges;
 
-    public Graph(List<IGraphVertex> vertexes, List<IGraphEdge> edges) {
+    public Graph(List<? extends IGraphVertex> vertexes, List<? extends IGraphEdge> edges) {
         _vertexes = vertexes;
         _edges = edges;
     }
@@ -48,32 +51,34 @@ public class Graph {
 
             Map<String, IGraphVertex> map = new HashMap<>();
 
-            for(int i=0; i<nodes.getLength(); i++){
-                Element e = (Element)nodes.item(i);
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Element e = (Element) nodes.item(i);
                 DummyVertex tmp = new DummyVertex(e.getAttribute("id"));
                 __vertexes[i] = tmp;
                 map.put(tmp.getId(), tmp);
             }
 
-            for(int i=0; i<edges.getLength(); i++) {
-                Element e = (Element)edges.item(i);
+            for (int i = 0; i < edges.getLength(); i++) {
+                Element e = (Element) edges.item(i);
                 __edges[i] = new DummyEdge(map.get(e.getAttribute("src")),
                         map.get(e.getAttribute("dest")), Float.parseFloat(e.getAttribute("weight")));
             }
 
             _vertexes = Arrays.asList(__vertexes);
             _edges = Arrays.asList(__edges);
+        } catch (IOException e) {
+            Log.e("Map error", "map not found!");
         } catch(Exception e) {
             _vertexes = null;
             _edges = null;
         }
     }
 
-    public List<IGraphVertex> getVertexes() {
+    public List<? extends IGraphVertex> getVertexes() {
         return _vertexes;
     }
 
-    public List<IGraphEdge> getEdges() {
+    public List<? extends IGraphEdge> getEdges() {
         return _edges;
     }
 }
