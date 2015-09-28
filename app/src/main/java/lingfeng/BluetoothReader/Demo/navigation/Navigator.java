@@ -36,8 +36,13 @@ public class Navigator {
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
             dom = db.parse(map_path);
-        }
-        catch (IOException|SAXException|ParserConfigurationException e)
+        } catch (IOException e)
+        {
+            throw new MapNotFoundException("map " + map_path + " was not found.");
+        } catch (SAXException e)
+        {
+            throw new MapNotFoundException("map " + map_path + " was not found.");
+        } catch (ParserConfigurationException e)
         {
             throw new MapNotFoundException("map " + map_path + " was not found.");
         }
@@ -159,7 +164,7 @@ public class Navigator {
         MapNode[] _nodes = new MapNode[nodes.getLength()];
         MapEdge[] _edges = new MapEdge[edges.getLength()];
 
-        Map<String, MapNode> map = new HashMap<>();
+        Map<String, MapNode> map = new HashMap<String, MapNode>();
 
         for (int i = 0; i < nodes.getLength(); i++) {
             Element e = (Element) nodes.item(i);

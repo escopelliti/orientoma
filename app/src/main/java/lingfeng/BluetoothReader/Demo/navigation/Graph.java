@@ -50,7 +50,7 @@ public class Graph {
             __vertexes = new IGraphVertex[nodes.getLength()];
             __edges = new IGraphEdge[edges.getLength()];
 
-            Map<String, IGraphVertex> map = new HashMap<>();
+            Map<String, IGraphVertex> map = new HashMap<String, IGraphVertex>();
 
             for (int i = 0; i < nodes.getLength(); i++) {
                 Element e = (Element) nodes.item(i);
