@@ -16,4 +16,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/groups/public/" }
+    }
+
+    dependencies {
+        compile 'com.getpebble:pebblekit:3.0.0'
+    }
 }
