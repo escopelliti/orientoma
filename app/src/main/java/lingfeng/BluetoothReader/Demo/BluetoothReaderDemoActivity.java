@@ -27,6 +27,8 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import lingfeng.BluetoothReader.Demo.navigation.Navigator;
+
 public class BluetoothReaderDemoActivity extends Activity {
     /** Called when the activity is first created. */
 	private static final String TAG = "Demo";
@@ -66,6 +68,10 @@ public class BluetoothReaderDemoActivity extends Activity {
 	private BluetoothAdapter mBluetoothAdapter = null;
 	// Member object for the chat services
 	private BluetoothChatService mChatService = null;
+
+    //Navigation data
+    private String mDestination = "14"; //TODO: Rendilo selezionabile dall'utente
+    private Navigator mNav;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -169,7 +175,14 @@ public class BluetoothReaderDemoActivity extends Activity {
 	   				}
         	   } 
            	} 
-		}); 		
+		});
+
+        //Carica il grafo per la mappa
+        try {
+            mNav = new Navigator(this.getResources().getResourceName(R.xml.boella)); //TODO: Check che la stringa ritornata sia effettivamente il path al file
+        } catch (Exception e) {
+            System.out.println("Mappa non trovata.");
+        }
     }
     
     @Override
@@ -313,6 +326,7 @@ public class BluetoothReaderDemoActivity extends Activity {
                 // msg.obj is the data array
                 // msg.arg1 is i, number of bytes read from the buffer
                 // msg.arg2 is -1
+
 				String s3 = String.valueOf(byte2HexStr(
 						(byte[]) msg.obj, msg.arg1));
 				String readMessage = (new StringBuilder(s3)).toString();
@@ -332,8 +346,33 @@ public class BluetoothReaderDemoActivity extends Activity {
                     formattedData.append("\n> Data: 0x" + zzc.substring(8, zzc.length()-4));
                     formattedData.append("\n> BCC: 0x" + zzc.substring(zzc.length()-4, zzc.length()-2) + "\n");
                     mConversationArrayAdapter.add(formattedData.toString());
-					zzc = "";		
+					zzc = "";
 				}
+
+                //TODO: Verifica che questo sia il codice che viene eseguito quando leggo un tag
+
+				/*TODO: 0) Se il sistema non è inizializzato (non esiste un path) crea il path (esegui dijkstra) e dai il primo output al cieco
+
+				        1) Leggi lo UID del tag letto
+						2) Prendi tramite il tabellozzo il codice del nodo associato allo UID
+						*/
+						String cur_pos_id = "1"; //TODO: Ottieni questo da tabella
+                        /*
+						IF no destination defined
+						    Chiedi all'utente di scegliere una destinazione
+						    Inizializza il navigatore
+                            */
+                            mNav.initNavigation(cur_pos_id, mDestination);
+                            /*
+						    Return.
+						3) Ottieni dal navigatore la direzione in cui andare, passandogli la posizione corrente
+						IF non sono più sul path
+						    4) Ricalcola il path
+						ELSE IF destinazione raggiunta
+						    FINE PATH. (comunicalo al cieco).
+						5) Manda in output la posizione al cieco.
+				* */
+
 		  		break;
 			case MESSAGE_DEVICE_NAME:
 				// save the connected device's name

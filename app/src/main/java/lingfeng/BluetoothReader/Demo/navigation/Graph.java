@@ -2,8 +2,6 @@ package lingfeng.BluetoothReader.Demo.navigation;
 
 import android.util.Log;
 
-import lingfeng.BluetoothReader.Demo.navigation.dummies.DummyEdge;
-import lingfeng.BluetoothReader.Demo.navigation.dummies.DummyVertex;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -18,10 +16,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 
-
-/**
- * Created by Filippo on 16/05/2015.
- */
 public class Graph {
     private List<? extends IGraphVertex> _vertexes;
     private List<? extends IGraphEdge> _edges;
@@ -54,15 +48,14 @@ public class Graph {
 
             for (int i = 0; i < nodes.getLength(); i++) {
                 Element e = (Element) nodes.item(i);
-                DummyVertex tmp = new DummyVertex(e.getAttribute("id"));
+                MapNode tmp = new MapNode(e.getAttribute("id"), e.getAttribute("north"), e.getAttribute("south"), e.getAttribute("east"), e.getAttribute("west"));
                 __vertexes[i] = tmp;
                 map.put(tmp.getId(), tmp);
             }
 
             for (int i = 0; i < edges.getLength(); i++) {
                 Element e = (Element) edges.item(i);
-                __edges[i] = new DummyEdge(map.get(e.getAttribute("src")),
-                        map.get(e.getAttribute("dest")), Float.parseFloat(e.getAttribute("weight")));
+                __edges[i] = new MapEdge(map.get(e.getAttribute("src")), map.get(e.getAttribute("dest")), Float.parseFloat(e.getAttribute("weight")));
             }
 
             _vertexes = Arrays.asList(__vertexes);
@@ -81,5 +74,15 @@ public class Graph {
 
     public List<? extends IGraphEdge> getEdges() {
         return _edges;
+    }
+
+    //Hack per prendere il MapNode corretto in base alla stringa del suo id
+    public MapNode findNode(String id)
+    {
+        for(int i=0; i<_vertexes.size(); i++) {
+            if(_vertexes.get(i).getId().equals(id))
+                return (MapNode)_vertexes.get(i);
+        }
+        return null;
     }
 }

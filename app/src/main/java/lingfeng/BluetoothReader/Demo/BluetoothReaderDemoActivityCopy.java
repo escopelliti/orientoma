@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -85,7 +86,7 @@ public class BluetoothReaderDemoActivityCopy extends Activity {
 		Button mClearButton = (Button) findViewById(R.id.button_clear);
 		mClearButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				mConversationArrayAdapter.clear();				
+				mConversationArrayAdapter.clear();
 			}
 		});
 		
@@ -251,68 +252,79 @@ public class BluetoothReaderDemoActivityCopy extends Activity {
 			mChatService.write(send);
 		}
 	}
-	
-    private final Handler mHandler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case MESSAGE_STATE_CHANGE:
-				if (D)
-					Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
-				switch (msg.arg1) {
-				case BluetoothChatService.STATE_CONNECTED:
-					mTitle.setText(R.string.title_connected_to);
-					mTitle.append(mConnectedDeviceName);
-					mConversationArrayAdapter.clear();
-					break;
-				case BluetoothChatService.STATE_CONNECTING:
-					mTitle.setText(R.string.title_connecting);
-					break;
-				case BluetoothChatService.STATE_LISTEN:
-				case BluetoothChatService.STATE_NONE:
-					mTitle.setText(R.string.title_not_connected);		
-					break;
-				}
-				break;
-			case MESSAGE_WRITE:
-				//byte[] writeBuf = (byte[]) msg.obj;
-				// construct a string from the buffer
-				//String writeMessage = new String(writeBuf);
 
-				SimpleDateFormat   formatter2   =   new   SimpleDateFormat   ("yyyy-MM-dd HH:mm:ss");  
-			    Date   curDate2   =   new   Date(System.currentTimeMillis()); 
-				mConversationArrayAdapter.add("Me:  "+sendMsg + "  "+ formatter2.format(curDate2) );
-				break;
-			case MESSAGE_READ:
-				String s3 = String.valueOf(byte2HexStr(
-						(byte[]) msg.obj, msg.arg1));
-				String readMessage = (new StringBuilder(s3)).toString();
-				
-				zzc += readMessage;
-				System.out.println(zzc);
-				if(zzc.length()>4){
-					SimpleDateFormat   formatter   =   new   SimpleDateFormat   ("yyyy-MM-dd HH:mm:ss");  
-				    Date   curDate   =   new   Date(System.currentTimeMillis());
-				    String   str   =   formatter.format(curDate);  
-					mConversationArrayAdapter.add(mConnectedDeviceName + ":  "+ zzc + "  "+ str );
-					zzc = "";		
-				}
-		  		break;
-			case MESSAGE_DEVICE_NAME:
-				// save the connected device's name
-				mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-				Toast.makeText(getApplicationContext(),
-						"Connected to " + mConnectedDeviceName,
-						Toast.LENGTH_SHORT).show();
-				break;
-			case MESSAGE_TOAST:
-				Toast.makeText(getApplicationContext(),
-						msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
-						.show();
-				break;
-			}
-		}
-	};
+	private static class MyHandler extends Handler {
+        private final WeakReference<BluetoothReaderDemoActivityCopy> mActivity;
+
+        public MyHandler(BluetoothReaderDemoActivityCopy activity) {
+            mActivity = new WeakReference<BluetoothReaderDemoActivityCopy>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            BluetoothReaderDemoActivityCopy activity = mActivity.get();
+            if (activity != null) {
+                switch (msg.what) {
+                    case MESSAGE_STATE_CHANGE:
+                        if (D)
+                            Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
+                        switch (msg.arg1) {
+                            case BluetoothChatService.STATE_CONNECTED:
+                                activity.mTitle.setText(R.string.title_connected_to);
+                                activity.mTitle.append(activity.mConnectedDeviceName);
+                                activity.mConversationArrayAdapter.clear();
+                                break;
+                            case BluetoothChatService.STATE_CONNECTING:
+                                activity.mTitle.setText(R.string.title_connecting);
+                                break;
+                            case BluetoothChatService.STATE_LISTEN:
+                            case BluetoothChatService.STATE_NONE:
+                                activity.mTitle.setText(R.string.title_not_connected);
+                                break;
+                        }
+                        break;
+                    case MESSAGE_WRITE:
+                        //byte[] writeBuf = (byte[]) msg.obj;
+                        // construct a string from the buffer
+                        //String writeMessage = new String(writeBuf);
+
+                        SimpleDateFormat   formatter2   =   new   SimpleDateFormat   ("yyyy-MM-dd HH:mm:ss");
+                        Date   curDate2   =   new   Date(System.currentTimeMillis());
+                        activity.mConversationArrayAdapter.add("Me:  "+activity.sendMsg + "  "+ formatter2.format(curDate2) );
+                        break;
+                    case MESSAGE_READ:
+                        String s3 = String.valueOf(byte2HexStr(
+                                (byte[]) msg.obj, msg.arg1));
+                        String readMessage = (new StringBuilder(s3)).toString();
+
+                        activity.zzc += readMessage;
+                        System.out.println(activity.zzc);
+                        if(activity.zzc.length()>4){
+                            SimpleDateFormat   formatter   =   new   SimpleDateFormat   ("yyyy-MM-dd HH:mm:ss");
+                            Date   curDate   =   new   Date(System.currentTimeMillis());
+                            String   str   =   formatter.format(curDate);
+                            activity.mConversationArrayAdapter.add(activity.mConnectedDeviceName + ":  "+ activity.zzc + "  "+ str );
+                            activity.zzc = "";
+                        }
+                        break;
+                    case MESSAGE_DEVICE_NAME:
+                        // save the connected device's name
+                        activity.mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                        Toast.makeText(activity.getApplicationContext(),
+                                "Connected to " + activity.mConnectedDeviceName,
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                    case MESSAGE_TOAST:
+                        Toast.makeText(activity.getApplicationContext(),
+                                msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
+                                .show();
+                        break;
+                }
+            }
+        }
+    }
+
+    private final MyHandler mHandler = new MyHandler(this);
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (D)
@@ -405,7 +417,7 @@ public class BluetoothReaderDemoActivityCopy extends Activity {
 			String s1 = s.substring(i1, k);
 			StringBuilder stringbuilder1 = stringbuilder.append(s1);
 			String s2 = s.substring(k, l);
-			byte byte0 = (byte)(Integer.decode(stringbuilder1.append(s2).toString()).intValue() & 0xff);
+			byte byte0 = (byte)(Integer.decode(stringbuilder1.append(s2).toString()) & 0xff);
 			abyte0[j] = byte0;
 			j++;
 		} while (true);

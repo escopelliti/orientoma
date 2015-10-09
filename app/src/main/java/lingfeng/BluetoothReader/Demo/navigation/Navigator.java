@@ -24,6 +24,7 @@ public class Navigator {
     private DijkstraAlgorithm _alg;
     private List<IGraphVertex> _path;
     private MapNode _lastNodeFound;
+    private Graph map;
 
     public Navigator(String map_path) throws MapNotFoundException {
 
@@ -50,18 +51,27 @@ public class Navigator {
         List[] storage = new List[2];
         getNodesAndEdges(dom, storage);
 
-        Graph map = new Graph(storage[0], storage[1]);
+        map = new Graph(storage[0], storage[1]);
         _alg = new DijkstraAlgorithm(map);
     }
 
-    public void initNavigation(IGraphVertex from, IGraphVertex to) {
+    public void initNavigation(String id_from, String id_to) {
+        MapNode from = map.findNode(id_from);
+        MapNode to = map.findNode(id_to);
         _alg.execute(from);
         _path = _alg.getPath(to);
     }
 
-    public Direction getNextDirection(MapNode my_position) {
+    public boolean isInitialized() {
+        return _path != null;
+    }
+
+    public Direction getNextDirection(String my_position_id) {
         if(_path == null)
             return null;
+
+        //Get the node from the nodes list
+        MapNode my_position = map.findNode(my_position_id);
 
         //TODO: Make sure that this function is NOT called twice for the same node without moving! (If it happens, atm we fuck up the previous node reading)
 
@@ -74,7 +84,7 @@ public class Navigator {
 
         if(index < 0) {
             //I got lost. Get a new path from here to the original destination
-            this.initNavigation(my_position, _path.get(_path.size()));
+            this.initNavigation(my_position_id, _path.get(_path.size()).getId());
             index = 0;
             _lastNodeFound = null;
         }
@@ -95,7 +105,7 @@ public class Navigator {
                 return Direction.FORWARD;
             if(next.isSouthOf(my_position))
                 return Direction.BACKWARD;
-            return null; //We should never hit this line, it's a safety exit in case somethting goes wrong
+            return null; //We should never hit this line, it's a safety exit in case something goes wrong
         }
 
         //We now know the last node we came from and the one we're at. We can thus calculate the
@@ -175,8 +185,7 @@ public class Navigator {
 
         for (int i = 0; i < edges.getLength(); i++) {
             Element e = (Element) edges.item(i);
-            _edges[i] = new MapEdge(map.get(e.getAttribute("src")),
-                    map.get(e.getAttribute("dest")), Float.parseFloat(e.getAttribute("weight")));
+            _edges[i] = new MapEdge(map.get(e.getAttribute("src")), map.get(e.getAttribute("dest")), Float.parseFloat(e.getAttribute("weight")));
         }
 
         storage[0] = Arrays.asList(_nodes);
