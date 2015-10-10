@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -289,82 +290,88 @@ public class BluetoothReaderDemoActivity extends Activity {
         }
     }
 
-    private final Handler mHandler = new Handler() {
+    private static class MyHandler extends Handler {
+        private final WeakReference<BluetoothReaderDemoActivity> mActivity;
+
+        public MyHandler(BluetoothReaderDemoActivity activity) {
+            mActivity = new WeakReference<BluetoothReaderDemoActivity>(activity);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MESSAGE_STATE_CHANGE:
-                    if (D)
-                        Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
-                    ActionBar ab = getActionBar();
-                    switch (msg.arg1) {
-                        case BluetoothChatService.STATE_CONNECTED:
+            BluetoothReaderDemoActivity activity = mActivity.get();
+            if (activity != null) {
+                switch (msg.what) {
+                    case MESSAGE_STATE_CHANGE:
+                        if (D)
+                            Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
+                        ActionBar ab = activity.getActionBar();
+                        switch (msg.arg1) {
+                            case BluetoothChatService.STATE_CONNECTED:
 //					mTitle.setText(R.string.title_connected_to);
 //					mTitle.append(mConnectedDeviceName);
-                            ab.setTitle(R.string.title_connected_to + " " + mConnectedDeviceName);
-                            mConversationArrayAdapter.clear();
-                            break;
-                        case BluetoothChatService.STATE_CONNECTING:
+                                ab.setTitle(R.string.title_connected_to + " " + activity.mConnectedDeviceName);
+                                activity.mConversationArrayAdapter.clear();
+                                break;
+                            case BluetoothChatService.STATE_CONNECTING:
 //					mTitle.setText(R.string.title_connecting);
-                            ab.setTitle(R.string.title_connecting);
-                            break;
-                        case BluetoothChatService.STATE_LISTEN:
-                        case BluetoothChatService.STATE_NONE:
+                                ab.setTitle(R.string.title_connecting);
+                                break;
+                            case BluetoothChatService.STATE_LISTEN:
+                            case BluetoothChatService.STATE_NONE:
 //					mTitle.setText(R.string.title_not_connected);
-                            ab.setTitle(R.string.title_not_connected);
-                            break;
-                    }
-                    break;
-                case MESSAGE_WRITE:
-                    //byte[] writeBuf = (byte[]) msg.obj;
-                    // construct a string from the buffer
-                    //String writeMessage = new String(writeBuf);
+                                ab.setTitle(R.string.title_not_connected);
+                                break;
+                        }
+                        break;
+                    case MESSAGE_WRITE:
+                        //byte[] writeBuf = (byte[]) msg.obj;
+                        // construct a string from the buffer
+                        //String writeMessage = new String(writeBuf);
 
-                    SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date curDate2 = new Date(System.currentTimeMillis());
-                    mConversationArrayAdapter.add("Me:  " + sendMsg + "  " + formatter2.format(curDate2));
-                    break;
-                case MESSAGE_READ:
-                    // zzc is the currently built packet. It's updated with several fragments.
-                    // msg.obj is the data array
-                    // msg.arg1 is i, number of bytes read from the buffer
-                    // msg.arg2 is -1
+                        SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        Date curDate2 = new Date(System.currentTimeMillis());
+                        activity.mConversationArrayAdapter.add("Me:  " + activity.sendMsg + "  " + formatter2.format(curDate2));
+                        break;
+                    case MESSAGE_READ:
+                        // zzc is the currently built packet. It's updated with several fragments.
+                        // msg.obj is the data array
+                        // msg.arg1 is i, number of bytes read from the buffer
+                        // msg.arg2 is -1
 
-                    String s3 = String.valueOf(byte2HexStr(
-                            (byte[]) msg.obj, msg.arg1));
-                    String readMessage = (new StringBuilder(s3)).toString();
+                        String s3 = String.valueOf(byte2HexStr(
+                                (byte[]) msg.obj, msg.arg1));
+                        String readMessage = (new StringBuilder(s3)).toString();
 
-                    zzc += readMessage;
-                    System.out.println(zzc);
-                    String readUID = null;
-                    if (zzc.length() > 4) {
-                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        Date curDate = new Date(System.currentTimeMillis());
-                        String str = formatter.format(curDate);
-                        StringBuilder formattedData = new StringBuilder();
-                        formattedData.append(mConnectedDeviceName + ":  Received a new packet\n");
-                        formattedData.append(str);
-                        formattedData.append("\n> Station ID: 0x" + zzc.substring(2, 4));
-                        formattedData.append("\n> Data Length: 0x" + zzc.substring(4, 6));
-                        formattedData.append("\n> Status code: 0x" + zzc.substring(6, 8));
-                        readUID = zzc.substring(8, zzc.length() - 4);
-                        formattedData.append("\n> Data: 0x" + readUID);
-                        formattedData.append("\n> BCC: 0x" + zzc.substring(zzc.length() - 4, zzc.length() - 2) + "\n");
-                        mConversationArrayAdapter.add(formattedData.toString());
-                        zzc = "";
-                    } else return;
+                        activity.zzc += readMessage;
+                        System.out.println(activity.zzc);
+                        String readUID = null;
+                        if (activity.zzc.length() > 4) {
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            Date curDate = new Date(System.currentTimeMillis());
+                            String str = formatter.format(curDate);
+                            StringBuilder formattedData = new StringBuilder();
+                            formattedData.append(activity.mConnectedDeviceName).append(":  Received a new packet\n");
+                            formattedData.append(str);
+                            formattedData.append("\n> Station ID: 0x").append(activity.zzc.substring(2, 4));
+                            formattedData.append("\n> Data Length: 0x").append(activity.zzc.substring(4, 6));
+                            formattedData.append("\n> Status code: 0x").append(activity.zzc.substring(6, 8));
+                            readUID = activity.zzc.substring(8, activity.zzc.length() - 4);
+                            formattedData.append("\n> Data: 0x").append(readUID);
+                            formattedData.append("\n> BCC: 0x").append(activity.zzc.substring(activity.zzc.length() - 4, activity.zzc.length() - 2)).append("\n");
+                            activity.mConversationArrayAdapter.add(formattedData.toString());
+                            activity.zzc = "";
+                        } else return;
 
-                    //TODO: Verifica che questo sia il codice che viene eseguito quando leggo un tag
+                        //TODO: Verifica che questo sia il codice che viene eseguito quando leggo un tag
 
-				/*TODO: 0) Se il sistema non è inizializzato (non esiste un path) crea il path (esegui dijkstra) e dai il primo output al cieco
-
-				        1) Leggi lo UID del tag letto
+				/*TODO: 1) Leggi lo UID del tag letto
 
 						2) Prendi tramite il tabellozzo il codice del nodo associato allo UID
 						*/
-                    String nextNode = null;
+                        String nextNode = null;
 
-                    nextNode = UIDToNodeTranslator.translator.get(readUID);
+                        nextNode = UIDToNodeTranslator.translator.get(readUID);
 
 
 //                    String cur_pos_id = "1"; //TODO: Ottieni questo da tabella
@@ -373,38 +380,41 @@ public class BluetoothReaderDemoActivity extends Activity {
 						    Chiedi all'utente di scegliere una destinazione
 						    Inizializza il navigatore
                             */
-                    if (mDestination == null) {
-                        //TODO: informa l'utente che deve scegliere una destinazione
-                        return;
-                    } else {
-                        mNav.initNavigation(nextNode, mDestination);
-                    }
+                        if (activity.mDestination == null) {
+                            //TODO: informa l'utente che deve scegliere una destinazione
+                            return;
+                        } else {
+                            activity.mNav.initNavigation(nextNode, activity.mDestination);
+                        }
 
                             /*
                             Return.
 						3) Ottieni dal navigatore la direzione in cui andare, passandogli la posizione corrente
 					*/
-                    Direction nextDirection = mNav.getNextDirection(nextNode);
-                    outputMgr.giveFeedbackToUser(nextDirection);
+                        Direction nextDirection = activity.mNav.getNextDirection(nextNode);
+                        activity.outputMgr.giveFeedbackToUser(nextDirection);
 //						5) Manda in output la posizione al cieco.
 
 
-                    break;
-                case MESSAGE_DEVICE_NAME:
-                    // save the connected device's name
-                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                    Toast.makeText(getApplicationContext(),
-                            "Connected to " + mConnectedDeviceName,
-                            Toast.LENGTH_SHORT).show();
-                    break;
-                case MESSAGE_TOAST:
-                    Toast.makeText(getApplicationContext(),
-                            msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
-                            .show();
-                    break;
+                        break;
+                    case MESSAGE_DEVICE_NAME:
+                        // save the connected device's name
+                        activity.mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                        Toast.makeText(activity.getApplicationContext(),
+                                "Connected to " + activity.mConnectedDeviceName,
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                    case MESSAGE_TOAST:
+                        Toast.makeText(activity.getApplicationContext(),
+                                msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
+                                .show();
+                        break;
+                }
             }
         }
-    };
+    }
+
+    private final MyHandler mHandler = new MyHandler(this);
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (D)
