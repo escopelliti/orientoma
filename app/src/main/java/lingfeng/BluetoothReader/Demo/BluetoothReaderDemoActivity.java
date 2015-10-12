@@ -35,7 +35,7 @@ public class BluetoothReaderDemoActivity extends Activity {
     /**
      * Called when the activity is first created.
      */
-    private static final String TAG = "Demo";
+    private static final String TAG = "Orientoma";
     private static final boolean D = true;
 
     String zzc = "";
@@ -308,31 +308,25 @@ public class BluetoothReaderDemoActivity extends Activity {
                         ActionBar ab = activity.getActionBar();
                         switch (msg.arg1) {
                             case BluetoothChatService.STATE_CONNECTED:
-//					mTitle.setText(R.string.title_connected_to);
-//					mTitle.append(mConnectedDeviceName);
                                 ab.setTitle(R.string.title_connected_to + " " + activity.mConnectedDeviceName);
                                 activity.mConversationArrayAdapter.clear();
                                 break;
                             case BluetoothChatService.STATE_CONNECTING:
-//					mTitle.setText(R.string.title_connecting);
                                 ab.setTitle(R.string.title_connecting);
                                 break;
                             case BluetoothChatService.STATE_LISTEN:
                             case BluetoothChatService.STATE_NONE:
-//					mTitle.setText(R.string.title_not_connected);
                                 ab.setTitle(R.string.title_not_connected);
                                 break;
                         }
                         break;
-                    case MESSAGE_WRITE:
-                        //byte[] writeBuf = (byte[]) msg.obj;
-                        // construct a string from the buffer
-                        //String writeMessage = new String(writeBuf);
 
+                    case MESSAGE_WRITE:
                         SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date curDate2 = new Date(System.currentTimeMillis());
                         activity.mConversationArrayAdapter.add("Me:  " + activity.sendMsg + "  " + formatter2.format(curDate2));
                         break;
+
                     case MESSAGE_READ:
                         // zzc is the currently built packet. It's updated with several fragments.
                         // msg.obj is the data array
@@ -356,6 +350,7 @@ public class BluetoothReaderDemoActivity extends Activity {
                             formattedData.append("\n> Station ID: 0x").append(activity.zzc.substring(2, 4));
                             formattedData.append("\n> Data Length: 0x").append(activity.zzc.substring(4, 6));
                             formattedData.append("\n> Status code: 0x").append(activity.zzc.substring(6, 8));
+                            //1) Leggi lo UID del tag letto
                             readUID = activity.zzc.substring(8, activity.zzc.length() - 4);
                             formattedData.append("\n> Data: 0x").append(readUID);
                             formattedData.append("\n> BCC: 0x").append(activity.zzc.substring(activity.zzc.length() - 4, activity.zzc.length() - 2)).append("\n");
@@ -363,40 +358,35 @@ public class BluetoothReaderDemoActivity extends Activity {
                             activity.zzc = "";
                         } else return;
 
-                        //TODO: Verifica che questo sia il codice che viene eseguito quando leggo un tag
+						//2) Prendi il codice del nodo associato allo UID
 
-				/*TODO: 1) Leggi lo UID del tag letto
-
-						2) Prendi tramite il tabellozzo il codice del nodo associato allo UID
-						*/
                         String nextNode = null;
 
                         nextNode = UIDToNodeTranslator.translator.get(readUID);
+                        Log.d(TAG, "Read tag with UID "+readUID+" that was translated to Node ID "+nextNode);
+                        if(nextNode == null) {
+                            Log.e(TAG, "Translator could not find a match for tag with UID "+readUID);
+                            return;
+                        }
 
-
-//                    String cur_pos_id = "1"; //TODO: Ottieni questo da tabella
-                        /*
-                        IF no destination defined
-						    Chiedi all'utente di scegliere una destinazione
-						    Inizializza il navigatore
-                            */
+                        //IF no destination defined
+						//    Chiedi all'utente di scegliere una destinazione
+						//    Inizializza il navigatore
                         if (activity.mDestination == null) {
                             //TODO: informa l'utente che deve scegliere una destinazione
+                            activity.mConversationArrayAdapter.add("No destination selected. Select a destination to navigate.");
                             return;
-                        } else {
+                        } else if(!activity.mNav.isInitialized()) { //Init the navigator only if it wasn't initialized yet
                             activity.mNav.initNavigation(nextNode, activity.mDestination);
                         }
 
-                            /*
-                            Return.
-						3) Ottieni dal navigatore la direzione in cui andare, passandogli la posizione corrente
-					*/
+						//3) Ottieni dal navigatore la direzione in cui andare, passandogli la posizione corrente
                         Direction nextDirection = activity.mNav.getNextDirection(nextNode);
+
+                        //4) Manda in output la posizione al cieco.
                         activity.outputMgr.giveFeedbackToUser(nextDirection);
-//						5) Manda in output la posizione al cieco.
-
-
                         break;
+
                     case MESSAGE_DEVICE_NAME:
                         // save the connected device's name
                         activity.mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
@@ -404,6 +394,7 @@ public class BluetoothReaderDemoActivity extends Activity {
                                 "Connected to " + activity.mConnectedDeviceName,
                                 Toast.LENGTH_SHORT).show();
                         break;
+
                     case MESSAGE_TOAST:
                         Toast.makeText(activity.getApplicationContext(),
                                 msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
@@ -482,7 +473,6 @@ public class BluetoothReaderDemoActivity extends Activity {
             else
                 s1 = s;
             stringbuilder.append(s1);
-            //	stringbuilder.append(" ");
             j++;
         } while (true);
     }

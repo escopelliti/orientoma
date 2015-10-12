@@ -4,20 +4,20 @@
         This is the map of the Boella lab used in the orientoma project. Edge's weight is in centimeters.
 </description>
     <nodes>
-        <node id="1" north="" south="" east="" west="" />
-        <node id="2" north="" south="" east="" west=""/>
-        <node id="3" north="" south="" east="" west=""/>
-        <node id="4" north="" south="" east="" west=""/>
-        <node id="5" north="" south="" east="" west=""/>
-        <node id="6" north="" south="" east="" west=""/>
-        <node id="7" north="" south="" east="" west=""/>
-        <node id="8" north="" south="" east="" west=""/>
-        <node id="9" north="" south="" east="" west=""/>
-        <node id="10" north="" south="" east="" west=""/>
-	  <node id="11" north="" south="" east="" west=""/>
-	  <node id="12" north="" south="" east="" west=""/>
-	  <node id="13" north="" south="" east="" west=""/>
-	  <node id="14" north="" south="" east="" west=""/>
+        <node id="1" north="2" south="" east="" west="" />
+        <node id="2" north="13" south="1" east="" west="3"/>
+        <node id="3" north="5" south="4" east="2" west=""/>
+        <node id="4" north="5" south="" east="3" west=""/>
+        <node id="5" north="6" south="" east="3" west="4"/>
+        <node id="6" north="" south="5" east="8" west="7"/>
+        <node id="7" north="" south="6" east="8" west=""/>
+        <node id="8" north="9" south="6" east="" west="7"/>
+        <node id="9" north="10" south="8" east="13" west=""/>
+        <node id="10" north="11" south="9" east="" west="12"/>
+	  <node id="11" north="" south="10" east="" west=""/>
+	  <node id="12" north="" south="" east="10" west=""/>
+	  <node id="13" north="14" south="2" east="" west="9"/>
+	  <node id="14" north="" south="" east="13" west=""/>
     </nodes>
     <edges>
         <edge src="1" deast="2" weight="35"/>

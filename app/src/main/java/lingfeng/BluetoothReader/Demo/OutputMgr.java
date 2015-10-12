@@ -18,6 +18,12 @@ public class OutputMgr {
     private Context appContext;
     private final static UUID PEBBLE_APP_UUID = UUID.fromString("EC7EE5C6-8DDF-4089-AA84-C3396A11CC95");
 
+    private final static int SX = 1;
+    private final static int DX = 2;
+    private final static int CBACK = 3;
+    private final static int FORWARD = 4;
+    private final static int TARGET = 5;
+
     public OutputMgr(Context appContext) {
         this.appContext = appContext;
 
@@ -42,33 +48,38 @@ public class OutputMgr {
         PebbleKit.startAppOnPebble(appContext, PEBBLE_APP_UUID);
     }
 
-    public PebbleDictionary prepareDirection(String cod) {
+    public void giveFeedbackToUser(Direction direction) {
+
+        boolean connected = PebbleKit.isWatchConnected(appContext);
+        if(!connected){
+            Log.w("Orientoma", "Pebble is not connected!");
+            return;
+        }
+
         PebbleDictionary data = new PebbleDictionary();
         data.addUint8(0, (byte) 42);
         data.addString(1, "A string");
-        return data;
-    }
 
-    public void giveFeedbackToUser(Direction direction) {
+        Log.d("Orientoma", "Received from navigator the command "+direction.toString());
 
-        //TODO: to handle errors
-        boolean connected = PebbleKit.isWatchConnected(appContext);
-
-        String cod = "";
-        //TODO: to be defined with Sebastiano
         switch (direction) {
             case BACKWARD:
+                data.addString(CBACK, "back");
                 break;
             case RIGHT:
+                data.addString(DX, "dx");
                 break;
             case LEFT:
+                data.addString(SX, "sx");
                 break;
             case FORWARD:
+                data.addString(FORWARD, "forward");
                 break;
             case TARGET:
+                data.addString(TARGET, "target reached");
                 break;
         }
-        PebbleKit.sendDataToPebble(appContext, PEBBLE_APP_UUID, prepareDirection(cod));
+        PebbleKit.sendDataToPebble(appContext, PEBBLE_APP_UUID, data);
     }
 
     public void shutdown() {
