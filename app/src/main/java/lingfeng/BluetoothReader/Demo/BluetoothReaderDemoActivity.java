@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,10 +27,10 @@ import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import lingfeng.BluetoothReader.Demo.navigation.Direction;
 import lingfeng.BluetoothReader.Demo.navigation.Navigator;
 
 public class BluetoothReaderDemoActivity extends Activity {
@@ -77,6 +79,41 @@ public class BluetoothReaderDemoActivity extends Activity {
     private String mDestination = "14"; //TODO: Rendilo selezionabile dall'utente
     private Navigator mNav;
     private OutputMgr outputMgr;
+
+    // Parsing binary to string
+    static String bin2hex(byte[] data) {
+        return String.format("%0" + (data.length * 2) + "X", new BigInteger(1, data));
+    }
+
+    private static void navigate(String uid, BluetoothReaderDemoActivity activity) {
+        /*
+        String nextNode = null;
+
+        nextNode = UIDToNodeTranslator.translator.get(uid);
+        Log.d(TAG, "Read tag with UID "+uid+" that was translated to Node ID "+nextNode);
+        if(nextNode == null) {
+            Log.e(TAG, "Translator could not find a match for tag with UID "+uid);
+            return;
+        }
+
+        //IF no destination defined
+        //    Chiedi all'utente di scegliere una destinazione
+        //    Inizializza il navigatore
+        if (activity.mDestination == null) {
+            //TODO: informa l'utente che deve scegliere una destinazione
+            activity.mConversationArrayAdapter.add("No destination selected. Select a destination to navigate.");
+            return;
+        } else if(!activity.mNav.isInitialized()) { //Init the navigator only if it wasn't initialized yet
+            activity.mNav.initNavigation(nextNode, activity.mDestination);
+        }
+
+        //3) Ottieni dal navigatore la direzione in cui andare, passandogli la posizione corrente
+        Direction nextDirection = activity.mNav.getNextDirection(nextNode);
+
+        //4) Manda in output la posizione al cieco.
+        activity.outputMgr.giveFeedbackToUser(nextDirection);
+        */
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -179,13 +216,7 @@ public class BluetoothReaderDemoActivity extends Activity {
             }
         });
 
-        //Carica il grafo per la mappa
-        try {
-            mNav = new Navigator(this.getResources().getResourceName(R.xml.boella)); //TODO: Check che la stringa ritornata sia effettivamente il path al file
-            outputMgr = new OutputMgr(getApplicationContext());
-        } catch (Exception e) {
-            System.out.println("Mappa non trovata.");
-        }
+
     }
 
     @Override
@@ -205,11 +236,30 @@ public class BluetoothReaderDemoActivity extends Activity {
             if (mChatService == null)
                 setupChat();
         }
+
+        //Carica il grafo per la mappa
+        try {
+            mNav = new Navigator(this.getResources().openRawResource(R.raw.boella));
+            outputMgr = new OutputMgr(getApplicationContext());
+        } catch (Exception e) {
+            System.out.println("Mappa non trovata.");
+        }
     }
 
     @Override
     public synchronized void onResume() {
         super.onResume();
+
+        //Handle ACTION_TAG_DISCOVERED intent (mirror the bluetooth reader behaviour but with the phone NFC instead)
+        if (getIntent().getAction().equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
+            Tag tag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            String uid = bin2hex(tag.getId());
+            Toast.makeText(this, uid, Toast.LENGTH_LONG).show();
+            Log.d(TAG, "Found NFC tag with UID "+uid);
+            navigate(uid, this);
+            return;
+        }
+
         if (D)
             Log.e(TAG, "+ ON RESUME +");
 
@@ -218,7 +268,7 @@ public class BluetoothReaderDemoActivity extends Activity {
         // onResume() will be called when ACTION_REQUEST_ENABLE activity
         // returns.
         if (mChatService != null) {
-            // Only if the state is STATE_NONE, do we know that we haven't
+            // Only if the state is STATE_NONE, we know that we haven't
             // started already
             if (mChatService.getState() == BluetoothChatService.STATE_NONE) {
                 // Start the Bluetooth chat services
@@ -358,33 +408,8 @@ public class BluetoothReaderDemoActivity extends Activity {
                             activity.zzc = "";
                         } else return;
 
-						//2) Prendi il codice del nodo associato allo UID
-
-                        String nextNode = null;
-
-                        nextNode = UIDToNodeTranslator.translator.get(readUID);
-                        Log.d(TAG, "Read tag with UID "+readUID+" that was translated to Node ID "+nextNode);
-                        if(nextNode == null) {
-                            Log.e(TAG, "Translator could not find a match for tag with UID "+readUID);
-                            return;
-                        }
-
-                        //IF no destination defined
-						//    Chiedi all'utente di scegliere una destinazione
-						//    Inizializza il navigatore
-                        if (activity.mDestination == null) {
-                            //TODO: informa l'utente che deve scegliere una destinazione
-                            activity.mConversationArrayAdapter.add("No destination selected. Select a destination to navigate.");
-                            return;
-                        } else if(!activity.mNav.isInitialized()) { //Init the navigator only if it wasn't initialized yet
-                            activity.mNav.initNavigation(nextNode, activity.mDestination);
-                        }
-
-						//3) Ottieni dal navigatore la direzione in cui andare, passandogli la posizione corrente
-                        Direction nextDirection = activity.mNav.getNextDirection(nextNode);
-
-                        //4) Manda in output la posizione al cieco.
-                        activity.outputMgr.giveFeedbackToUser(nextDirection);
+						//2) fai la navigazione
+                        navigate(readUID, activity);
                         break;
 
                     case MESSAGE_DEVICE_NAME:

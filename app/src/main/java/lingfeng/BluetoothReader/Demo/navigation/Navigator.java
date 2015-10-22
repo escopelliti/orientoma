@@ -6,6 +6,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,7 @@ public class Navigator {
     private MapNode _lastNodeFound;
     private Graph map;
 
-    public Navigator(String map_path) throws MapNotFoundException {
+    public Navigator(InputStream map_file) throws MapNotFoundException {
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         IGraphVertex[] __vertexes;
@@ -36,16 +37,16 @@ public class Navigator {
 
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
-            dom = db.parse(map_path);
+            dom = db.parse(map_file);
         } catch (IOException e)
         {
-            throw new MapNotFoundException("map " + map_path + " was not found.");
+            throw new MapNotFoundException("map not found.");
         } catch (SAXException e)
         {
-            throw new MapNotFoundException("map " + map_path + " was not found.");
+            throw new MapNotFoundException("map not found.");
         } catch (ParserConfigurationException e)
         {
-            throw new MapNotFoundException("map " + map_path + " was not found.");
+            throw new MapNotFoundException("map not found.");
         }
 
         List[] storage = new List[2];
