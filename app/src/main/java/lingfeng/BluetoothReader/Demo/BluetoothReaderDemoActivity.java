@@ -36,7 +36,7 @@ public class BluetoothReaderDemoActivity extends Activity {
     /**
      * Called when the activity is first created.
      */
-    private static final String TAG = "Orientoma";
+    private static final String TAG = "Orientoma.Navigator";
     private static final boolean D = true;
 
     String zzc = "";
@@ -122,7 +122,7 @@ public class BluetoothReaderDemoActivity extends Activity {
         setContentView(R.layout.main);
 
         ActionBar ab = getActionBar();
-        ab.setTitle(R.string.app_name);
+        ab.setTitle("Navigator");
 
         mTextInfo = (TextView) findViewById(R.id.text_info);
         mTextInfo.setText("");
@@ -275,7 +275,7 @@ public class BluetoothReaderDemoActivity extends Activity {
         super.onResume();
 
         //Handle ACTION_TAG_DISCOVERED intent (mirror the bluetooth reader behaviour but with the phone NFC instead)
-        if (getIntent().getAction().equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
+        if ( getIntent().getAction() != null && getIntent().getAction().equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
             Tag tag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
             String uid = byte2HexStr(tag.getId(), tag.getId().length);
             Toast.makeText(this, uid, Toast.LENGTH_LONG).show();
@@ -379,15 +379,15 @@ public class BluetoothReaderDemoActivity extends Activity {
                         ActionBar ab = activity.getActionBar();
                         switch (msg.arg1) {
                             case BluetoothChatService.STATE_CONNECTED:
-                                ab.setTitle(R.string.title_connected_to + " " + activity.mConnectedDeviceName);
+                                ab.setTitle("Navigator - " + activity.getResources().getString(R.string.title_connected_to) + " " + activity.mConnectedDeviceName);
                                 activity.mConversationArrayAdapter.clear();
                                 break;
                             case BluetoothChatService.STATE_CONNECTING:
-                                ab.setTitle(R.string.title_connecting);
+                                ab.setTitle("Navigator - " + activity.getResources().getString(R.string.title_connecting));
                                 break;
                             case BluetoothChatService.STATE_LISTEN:
                             case BluetoothChatService.STATE_NONE:
-                                ab.setTitle(R.string.title_not_connected);
+                                ab.setTitle("Navigator - " + activity.getResources().getString(R.string.title_not_connected));
                                 break;
                         }
                         break;

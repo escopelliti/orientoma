@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BluetoothReader Demo</string>
+    <string name="app_name">Orientoma</string>
 
     <!--  BluetoothChat -->
     <string name="send">Send</string>
@@ -22,4 +22,7 @@
     <!-- Options Menu -->
     <string name="connect">Connect a device</string>
     <string name="discoverable">Make discoverable</string>
+
+    <!-- Recorder -->
+    <string name="uid_node_map_fname">uid_map.xml</string>
 </resources>

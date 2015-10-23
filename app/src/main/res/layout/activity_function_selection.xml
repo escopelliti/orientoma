@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text="Navigator"
+            android:id="@+id/button_navigator"
+            android:layout_weight="1"
+            android:textSize="40dp"
+            android:onClick="openNavigator"/>
+
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text="Tag Recorder"
+            android:id="@+id/button_recorder"
+            android:layout_weight="1"
+            android:textSize="40dp"
+            android:onClick="openRecorder"/>
+    </LinearLayout>
+</RelativeLayout>

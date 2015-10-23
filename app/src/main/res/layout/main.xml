@@ -83,16 +83,18 @@
             android:layout_height="wrap_content">
             <Button android:id="@+id/button_clear"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="80dp"
                 android:text="Clear"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textSize="24dp" />
 
             <Button
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="Simulate Read"
+                android:layout_height="80dp"
+                android:text="Fake Read"
                 android:id="@+id/button_read_node"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textSize="24dp" />
 
         </LinearLayout>
 

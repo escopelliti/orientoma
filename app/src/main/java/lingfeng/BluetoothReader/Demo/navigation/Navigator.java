@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +64,11 @@ public class Navigator {
         MapNode to = map.findNode(id_to);
         _alg.execute(from);
         _path = _alg.getPath(to);
+        //Fix for the case where from == to
+        if(id_from.equals(id_to)) {
+            _path = new LinkedList<IGraphVertex>();
+            _path.add(new MapNode(id_from, "", "", "", "")); //Faking the north, south, east and west nodes as we don't really care anymore of them here.
+        }
     }
 
     public boolean isInitialized() {

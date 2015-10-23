@@ -19,6 +19,7 @@ public class OutputMgr {
 
     private Context appContext;
     private final static UUID PEBBLE_APP_UUID = UUID.fromString("51b2383e-51e0-49b3-ba61-6aa74fead4e3");
+    private final static String TAG = "Orientoma.OutputMgr";
 
     private final static int SX = 1;
     private final static int DX = 2;
@@ -51,6 +52,10 @@ public class OutputMgr {
     }
 
     public void giveFeedbackToUser(Direction direction) {
+        if(direction == null) {
+            Log.d(TAG, "giveFeedbackToUser called with null direction");
+            return;
+        }
 
         boolean connected = PebbleKit.isWatchConnected(appContext);
         if(!connected){
