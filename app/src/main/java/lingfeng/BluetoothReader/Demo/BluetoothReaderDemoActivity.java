@@ -80,6 +80,7 @@ public class BluetoothReaderDemoActivity extends Activity {
     private OutputMgr outputMgr;
     private String fakeUID = "";
     private boolean initialized = false;
+    private UIDToNodeTranslator translator;
 
     private static void navigate(String uid, BluetoothReaderDemoActivity activity) {
         Log.i(TAG, "Navigating from node "+uid);
@@ -87,7 +88,7 @@ public class BluetoothReaderDemoActivity extends Activity {
 
         String nextNode = null;
 
-        nextNode = UIDToNodeTranslator.translator.get(uid);
+        nextNode = activity.translator.getNodeId(uid);
         nextNode = uid; //TODO: Remove this when translator will be implemented
         Log.d(TAG, "Read tag with UID "+uid+" that was translated to Node ID "+nextNode);
         if(nextNode == null) {
@@ -249,6 +250,10 @@ public class BluetoothReaderDemoActivity extends Activity {
                 fakeUID = "";
             }
         });
+
+        //Inizializza il translator con il mapping fra UID e Node id
+        translator = new UIDToNodeTranslator();
+        translator.init(this);
     }
 
     @Override
