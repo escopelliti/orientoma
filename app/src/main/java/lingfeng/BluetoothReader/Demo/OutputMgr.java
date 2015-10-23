@@ -4,11 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
 import com.getpebble.android.kit.PebbleKit;
 import com.getpebble.android.kit.util.PebbleDictionary;
-import lingfeng.BluetoothReader.Demo.navigation.Direction;
 
 import java.util.UUID;
+
+import lingfeng.BluetoothReader.Demo.navigation.Direction;
 
 /**
  * Created by ilrosso on 09/10/15.
@@ -16,7 +18,7 @@ import java.util.UUID;
 public class OutputMgr {
 
     private Context appContext;
-    private final static UUID PEBBLE_APP_UUID = UUID.fromString("EC7EE5C6-8DDF-4089-AA84-C3396A11CC95");
+    private final static UUID PEBBLE_APP_UUID = UUID.fromString("51b2383e-51e0-49b3-ba61-6aa74fead4e3");
 
     private final static int SX = 1;
     private final static int DX = 2;
@@ -57,9 +59,6 @@ public class OutputMgr {
         }
 
         PebbleDictionary data = new PebbleDictionary();
-        data.addUint8(0, (byte) 42);
-        data.addString(1, "A string");
-
         Log.d("Orientoma", "Received from navigator the command "+direction.toString());
 
         switch (direction) {

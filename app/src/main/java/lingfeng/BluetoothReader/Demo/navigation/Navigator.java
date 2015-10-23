@@ -97,7 +97,7 @@ public class Navigator {
 
         if(index < 0) {
             //I got lost. Get a new path from here to the original destination
-            this.initNavigation(my_position_id, _path.get(_path.size()).getId());
+            this.initNavigation(my_position_id, _path.get(_path.size()-1).getId());
             index = 0;
             _lastNodeFound = null;
         }

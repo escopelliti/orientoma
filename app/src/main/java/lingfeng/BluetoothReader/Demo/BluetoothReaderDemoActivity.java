@@ -79,6 +79,7 @@ public class BluetoothReaderDemoActivity extends Activity {
     private Navigator mNav;
     private OutputMgr outputMgr;
     private String fakeUID = "";
+    private boolean initialized = false;
 
     private static void navigate(String uid, BluetoothReaderDemoActivity activity) {
         Log.i(TAG, "Navigating from node "+uid);
@@ -101,8 +102,9 @@ public class BluetoothReaderDemoActivity extends Activity {
             activity.mTextInfo.setText("Choose a destination!");
             //activity.mConversationArrayAdapter.add("No destination selected. Select a destination to navigate.");
             return;
-        } else if(!activity.mNav.isInitialized()) { //Init the navigator only if it wasn't initialized yet
+        } else if(!activity.mNav.isInitialized() || !activity.initialized) { //Init the navigator only if it wasn't initialized yet
             activity.mNav.initNavigation(nextNode, activity.mDestination);
+            activity.initialized = true;
         }
 
         //3) Ottieni dal navigatore la direzione in cui andare, passandogli la posizione corrente
@@ -227,6 +229,7 @@ public class BluetoothReaderDemoActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 mDestination = parent.getItemAtPosition(position).toString();
+                initialized = false;
             }
 
             @Override
