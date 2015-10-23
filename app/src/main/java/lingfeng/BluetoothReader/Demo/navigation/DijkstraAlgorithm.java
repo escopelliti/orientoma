@@ -55,7 +55,6 @@ public class DijkstraAlgorithm {
                 unSettledNodes.add(target);
             }
         }
-
     }
 
     private float getDistance(IGraphVertex node, IGraphVertex target) {

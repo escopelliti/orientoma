@@ -7,8 +7,10 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -25,10 +27,10 @@ public class Navigator {
     private DijkstraAlgorithm _alg;
     private List<IGraphVertex> _path;
     private MapNode _lastNodeFound;
+    private Direction _lastDirection;
     private Graph map;
 
     public Navigator(InputStream map_file) throws MapNotFoundException {
-
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         IGraphVertex[] __vertexes;
         IGraphEdge[] __edges;
@@ -67,17 +69,27 @@ public class Navigator {
         return _path != null;
     }
 
+    public List<String> getNodeNames() {
+        List<String> ret = new ArrayList<String>();
+        List nodes = map.getVertexes();
+        for(Iterator<IGraphVertex> i = nodes.listIterator(); i.hasNext(); ) {
+            ret.add(i.next().getId());
+        }
+        return ret;
+    }
+
     public Direction getNextDirection(String my_position_id) {
         if(_path == null)
             return null;
 
+        if(_lastNodeFound != null && my_position_id.equals(_lastNodeFound.getId()))
+            return _lastDirection; //If the same tag is read twice, return the last direction suggestion and don't do anything more.
+
         //Get the node from the nodes list
         MapNode my_position = map.findNode(my_position_id);
 
-        //TODO: Make sure that this function is NOT called twice for the same node without moving! (If it happens, atm we fuck up the previous node reading)
-
         //Check if I arrived
-        if(my_position.equals(_path.get(_path.size())))
+        if(my_position.equals(_path.get(_path.size()-1)))
             return Direction.TARGET;
 
         //Check if I'm still on path
@@ -99,14 +111,14 @@ public class Navigator {
             //(We assume the guy is facing north)
             _lastNodeFound = my_position;
             if(next.isEastOf(my_position))
-                return Direction.RIGHT;
+                _lastDirection = Direction.RIGHT;
             if(next.isWestOf(my_position))
-                return Direction.LEFT;
+                _lastDirection =  Direction.LEFT;
             if(next.isNorthOf(my_position))
-                return Direction.FORWARD;
+                _lastDirection =  Direction.FORWARD;
             if(next.isSouthOf(my_position))
-                return Direction.BACKWARD;
-            return null; //We should never hit this line, it's a safety exit in case something goes wrong
+                _lastDirection =  Direction.BACKWARD;
+            return _lastDirection; //We should never hit this line, it's a safety exit in case something goes wrong
         }
 
         //We now know the last node we came from and the one we're at. We can thus calculate the
@@ -120,52 +132,60 @@ public class Navigator {
         if(my_position.isNorthOf(prev)) {
             //I am facing north
             if(next.isEastOf(my_position))
-                return Direction.RIGHT;
+                _lastDirection = Direction.RIGHT;
             if(next.isWestOf(my_position))
-                return Direction.LEFT;
+                _lastDirection = Direction.LEFT;
             if(next.isNorthOf(my_position))
-                return Direction.FORWARD;
+                _lastDirection = Direction.FORWARD;
             if(next.isSouthOf(my_position))
-                return Direction.BACKWARD;
-            return null;
+                _lastDirection = Direction.BACKWARD;
+            return _lastDirection;
         }
         if(my_position.isEastOf(prev)) {
             //I am facing east
             if(next.isEastOf(my_position))
-                return Direction.FORWARD;
+                _lastDirection = Direction.FORWARD;
             if(next.isWestOf(my_position))
-                return Direction.BACKWARD;
+                _lastDirection = Direction.BACKWARD;
             if(next.isNorthOf(my_position))
-                return Direction.LEFT;
+                _lastDirection = Direction.LEFT;
             if(next.isSouthOf(my_position))
-                return Direction.RIGHT;
-            return null;
+                _lastDirection = Direction.RIGHT;
+            return _lastDirection;
         }
         if(my_position.isWestOf(prev)) {
             //I am facing west
             if(next.isEastOf(my_position))
-                return Direction.BACKWARD;
+                _lastDirection = Direction.BACKWARD;
             if(next.isWestOf(my_position))
-                return Direction.FORWARD;
+                _lastDirection = Direction.FORWARD;
             if(next.isNorthOf(my_position))
-                return Direction.RIGHT;
+                _lastDirection = Direction.RIGHT;
             if(next.isSouthOf(my_position))
-                return Direction.LEFT;
-            return null;
+                _lastDirection = Direction.LEFT;
+            return _lastDirection;
         }
         if(my_position.isSouthOf(prev)) {
             //I am facing south
             if(next.isEastOf(my_position))
-                return Direction.LEFT;
+                _lastDirection = Direction.LEFT;
             if(next.isWestOf(my_position))
-                return Direction.RIGHT;
+                _lastDirection = Direction.RIGHT;
             if(next.isNorthOf(my_position))
-                return Direction.BACKWARD;
+                _lastDirection = Direction.BACKWARD;
             if(next.isSouthOf(my_position))
-                return Direction.FORWARD;
-            return null;
+                _lastDirection = Direction.FORWARD;
+            return _lastDirection;
         }
-        return null;
+        return _lastDirection;
+    }
+
+    public String getNextNodeInPath_debug(String cur_node) {
+        for(int i=0; i<_path.size(); i++) {
+            if(_path.get(i).getId().equals(cur_node))
+                return i == _path.size()-1 ? "Target reached" : _path.get(i+1).getId();
+        }
+        return "Out of path";
     }
 
     private void getNodesAndEdges(Document dom, List[] storage){

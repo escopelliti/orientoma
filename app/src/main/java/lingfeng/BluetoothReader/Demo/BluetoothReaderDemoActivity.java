@@ -16,21 +16,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
-import java.math.BigInteger;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
+import lingfeng.BluetoothReader.Demo.navigation.Direction;
 import lingfeng.BluetoothReader.Demo.navigation.Navigator;
 
 public class BluetoothReaderDemoActivity extends Activity {
@@ -58,38 +57,37 @@ public class BluetoothReaderDemoActivity extends Activity {
     private static final int REQUEST_ENABLE_BT = 2;
 
     // Layout Views
-//	private TextView mTitle;
+	private TextView mTextInfo;
     private ListView mConversationView;
-    private EditText mOutEditText;
-    private Button mSendButton;
     private Button mClearButton;
-    private CheckBox mCheckld = null;
-    private CheckBox mCheckbeep = null;
+    private Button mSendFakeReadButton;
+    private Switch mCheckld = null;
+    private Switch mCheckbeep = null;
+    private Spinner mDestinationPicker = null;
+    private Spinner mNextNodePicker = null;
     // Name of the connected device
     private String mConnectedDeviceName = null;
     // Array adapter for the conversation thread
     private ArrayAdapter<String> mConversationArrayAdapter;
     // String buffer for outgoing messages
-    private StringBuffer mOutStringBuffer;
     private BluetoothAdapter mBluetoothAdapter = null;
     // Member object for the chat services
     private BluetoothChatService mChatService = null;
 
     //Navigation data
-    private String mDestination = "14"; //TODO: Rendilo selezionabile dall'utente
+    private String mDestination = null;
     private Navigator mNav;
     private OutputMgr outputMgr;
-
-    // Parsing binary to string
-    static String bin2hex(byte[] data) {
-        return String.format("%0" + (data.length * 2) + "X", new BigInteger(1, data));
-    }
+    private String fakeUID = "";
 
     private static void navigate(String uid, BluetoothReaderDemoActivity activity) {
-        /*
+        Log.i(TAG, "Navigating from node "+uid);
+        activity.mConversationArrayAdapter.add("Tag UID: " + uid);
+
         String nextNode = null;
 
         nextNode = UIDToNodeTranslator.translator.get(uid);
+        nextNode = uid; //TODO: Remove this when translator will be implemented
         Log.d(TAG, "Read tag with UID "+uid+" that was translated to Node ID "+nextNode);
         if(nextNode == null) {
             Log.e(TAG, "Translator could not find a match for tag with UID "+uid);
@@ -100,8 +98,8 @@ public class BluetoothReaderDemoActivity extends Activity {
         //    Chiedi all'utente di scegliere una destinazione
         //    Inizializza il navigatore
         if (activity.mDestination == null) {
-            //TODO: informa l'utente che deve scegliere una destinazione
-            activity.mConversationArrayAdapter.add("No destination selected. Select a destination to navigate.");
+            activity.mTextInfo.setText("Choose a destination!");
+            //activity.mConversationArrayAdapter.add("No destination selected. Select a destination to navigate.");
             return;
         } else if(!activity.mNav.isInitialized()) { //Init the navigator only if it wasn't initialized yet
             activity.mNav.initNavigation(nextNode, activity.mDestination);
@@ -112,24 +110,20 @@ public class BluetoothReaderDemoActivity extends Activity {
 
         //4) Manda in output la posizione al cieco.
         activity.outputMgr.giveFeedbackToUser(nextDirection);
-        */
+        activity.mConversationArrayAdapter.add("Next direction: "+nextDirection+"\nNext node in path: "+
+                activity.mNav.getNextNodeInPath_debug(uid));
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-//		requestWindowFeature((Window.FEATURE_NO_TITLE));
         setContentView(R.layout.main);
-//        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
-//				R.layout.custom_title);
 
-//      mTitle = (TextView) findViewById(R.id.title_left_text);
-//		mTitle.setText(R.string.app_name);
-//		mTitle = (TextView) findViewById(R.id.title_right_text);
         ActionBar ab = getActionBar();
         ab.setTitle(R.string.app_name);
 
+        mTextInfo = (TextView) findViewById(R.id.text_info);
+        mTextInfo.setText("");
 
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -149,74 +143,109 @@ public class BluetoothReaderDemoActivity extends Activity {
             }
         });
 
-        mSendButton = (Button) findViewById(R.id.button_send);
-        mSendButton.setOnClickListener(new OnClickListener() {
+        mSendFakeReadButton = (Button) findViewById(R.id.button_read_node);
+        mSendFakeReadButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                TextView view = (TextView) findViewById(R.id.edit_text_out);
-                sendMsg = view.getText().toString();
-                try {
-                    sendMessage(sendMsg);
-                } catch (UnsupportedEncodingException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                if(fakeUID.length() > 0) {
+                    navigate(fakeUID, BluetoothReaderDemoActivity.this);
+                } else {
+                    mTextInfo.setText("Seleziona un nodo");
                 }
             }
         });
 
-
-        mCheckld = (CheckBox) findViewById(R.id.checkBox2);
+        mCheckld = (Switch) findViewById(R.id.switch_auto);
         mCheckld.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // TODO Auto-generated method stub
                 if (isChecked) {
                     sendMsg = "0200020F010C03";
-                    Log.i(TAG, "����-------------->" + sendMsg);
+                    Log.i(TAG, "Enabling automatic reading of tags");
                     try {
                         sendMessage(sendMsg);
                     } catch (UnsupportedEncodingException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 } else {
                     sendMsg = "0200020F020F03";
-                    Log.i(TAG, "����-------------->" + sendMsg);
+                    Log.i(TAG, "Disabling automatic reading of tags");
                     try {
                         sendMessage(sendMsg);
                     } catch (UnsupportedEncodingException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
             }
         });
 
-        mCheckbeep = (CheckBox) findViewById(R.id.checkBox1);
+        mCheckbeep = (Switch) findViewById(R.id.switch_beep);
         mCheckbeep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // TODO Auto-generated method stub
                 if (isChecked) {
                     sendMsg = "0200020E010D03";
-                    Log.i(TAG, "����-------------->" + sendMsg);
+                    Log.i(TAG, "Enabling beeping on read");
                     try {
                         sendMessage(sendMsg);
                     } catch (UnsupportedEncodingException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 } else {
                     sendMsg = "0200020E020E03";
-                    Log.i(TAG, "����-------------->" + sendMsg);
+                    Log.i(TAG, "Disabling beeping on read");
                     try {
                         sendMessage(sendMsg);
                     } catch (UnsupportedEncodingException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
             }
         });
 
+        //Carica il grafo per la mappa
+        try {
+            mNav = new Navigator(this.getResources().openRawResource(R.raw.boella));
+            outputMgr = new OutputMgr(getApplicationContext());
+        } catch (Exception e) {
+            System.out.println("Mappa non trovata.");
+        }
 
+        //Popola gli spinner con la lista dei nodi
+        mDestinationPicker = (Spinner) findViewById(R.id.spinner_destination);
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, mNav.getNodeNames());
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mDestinationPicker.setAdapter(dataAdapter);
+
+        mNextNodePicker = (Spinner) findViewById(R.id.spinner_next_node);
+        //In teoria non servirebbe fare un altro adapter ma non si sa mai quindi ne faccio 2
+        ArrayAdapter<String> dataAdapter2 = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, mNav.getNodeNames());
+        dataAdapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mNextNodePicker.setAdapter(dataAdapter2);
+
+        //Gestisci la selezione degli items dagli spinner
+        mDestinationPicker.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mDestination = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                //Non faccio nulla se non scelgo nessun valore.
+            }
+        });
+
+        mNextNodePicker.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                fakeUID = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                fakeUID = "";
+            }
+        });
     }
 
     @Override
@@ -236,14 +265,6 @@ public class BluetoothReaderDemoActivity extends Activity {
             if (mChatService == null)
                 setupChat();
         }
-
-        //Carica il grafo per la mappa
-        try {
-            mNav = new Navigator(this.getResources().openRawResource(R.raw.boella));
-            outputMgr = new OutputMgr(getApplicationContext());
-        } catch (Exception e) {
-            System.out.println("Mappa non trovata.");
-        }
     }
 
     @Override
@@ -253,7 +274,7 @@ public class BluetoothReaderDemoActivity extends Activity {
         //Handle ACTION_TAG_DISCOVERED intent (mirror the bluetooth reader behaviour but with the phone NFC instead)
         if (getIntent().getAction().equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
             Tag tag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            String uid = bin2hex(tag.getId());
+            String uid = byte2HexStr(tag.getId(), tag.getId().length);
             Toast.makeText(this, uid, Toast.LENGTH_LONG).show();
             Log.d(TAG, "Found NFC tag with UID "+uid);
             navigate(uid, this);
@@ -284,10 +305,7 @@ public class BluetoothReaderDemoActivity extends Activity {
                 R.layout.message);
         mConversationView = (ListView) findViewById(R.id.in);
         mConversationView.setAdapter(mConversationArrayAdapter);
-
         mChatService = new BluetoothChatService(this, mHandler);
-
-        mOutStringBuffer = new StringBuffer("");
     }
 
     @Override
@@ -371,12 +389,6 @@ public class BluetoothReaderDemoActivity extends Activity {
                         }
                         break;
 
-                    case MESSAGE_WRITE:
-                        SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        Date curDate2 = new Date(System.currentTimeMillis());
-                        activity.mConversationArrayAdapter.add("Me:  " + activity.sendMsg + "  " + formatter2.format(curDate2));
-                        break;
-
                     case MESSAGE_READ:
                         // zzc is the currently built packet. It's updated with several fragments.
                         // msg.obj is the data array
@@ -391,20 +403,19 @@ public class BluetoothReaderDemoActivity extends Activity {
                         System.out.println(activity.zzc);
                         String readUID = null;
                         if (activity.zzc.length() > 4) {
-                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            Date curDate = new Date(System.currentTimeMillis());
-                            String str = formatter.format(curDate);
-                            StringBuilder formattedData = new StringBuilder();
-                            formattedData.append(activity.mConnectedDeviceName).append(":  Received a new packet\n");
-                            formattedData.append(str);
-                            formattedData.append("\n> Station ID: 0x").append(activity.zzc.substring(2, 4));
-                            formattedData.append("\n> Data Length: 0x").append(activity.zzc.substring(4, 6));
-                            formattedData.append("\n> Status code: 0x").append(activity.zzc.substring(6, 8));
+                            //SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            //Date curDate = new Date(System.currentTimeMillis());
+                            //String str = formatter.format(curDate);
+                            //StringBuilder formattedData = new StringBuilder();
+                            //formattedData.append(activity.mConnectedDeviceName).append(":  Received a new packet\n");
+                            //formattedData.append(str);
+                            //formattedData.append("\n> Station ID: 0x").append(activity.zzc.substring(2, 4));
+                            //formattedData.append("\n> Data Length: 0x").append(activity.zzc.substring(4, 6));
+                            //formattedData.append("\n> Status code: 0x").append(activity.zzc.substring(6, 8));
                             //1) Leggi lo UID del tag letto
                             readUID = activity.zzc.substring(8, activity.zzc.length() - 4);
-                            formattedData.append("\n> Data: 0x").append(readUID);
-                            formattedData.append("\n> BCC: 0x").append(activity.zzc.substring(activity.zzc.length() - 4, activity.zzc.length() - 2)).append("\n");
-                            activity.mConversationArrayAdapter.add(formattedData.toString());
+                            //formattedData.append("\n> Data: 0x").append(readUID);
+                            //formattedData.append("\n> BCC: 0x").append(activity.zzc.substring(activity.zzc.length() - 4, activity.zzc.length() - 2)).append("\n");
                             activity.zzc = "";
                         } else return;
 
