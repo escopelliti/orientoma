@@ -22,7 +22,7 @@ public class OutputMgr {
     private final static String TAG = "Orientoma.OutputMgr";
 
     private final static int SX = 1;
-    private final static int DX = 2;
+    private final static int DX = 8;
     private final static int CBACK = 3;
     private final static int FORWARD = 4;
     private final static int TARGET = 5;

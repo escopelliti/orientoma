@@ -187,6 +187,8 @@ public class Navigator {
     }
 
     public String getNextNodeInPath_debug(String cur_node) {
+        if(_path == null)
+            return "Path not initialized";
         for(int i=0; i<_path.size(); i++) {
             if(_path.get(i).getId().equals(cur_node))
                 return i == _path.size()-1 ? "Target reached" : _path.get(i+1).getId();

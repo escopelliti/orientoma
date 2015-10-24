@@ -89,19 +89,18 @@ public class BluetoothReaderDemoActivity extends Activity {
         String nextNode = null;
 
         nextNode = activity.translator.getNodeId(uid);
-        nextNode = uid; //TODO: Remove this when translator will be implemented
+        //nextNode = uid; //TODO: Remove this when translator will be implemented
         Log.d(TAG, "Read tag with UID "+uid+" that was translated to Node ID "+nextNode);
         if(nextNode == null) {
             Log.e(TAG, "Translator could not find a match for tag with UID "+uid);
+            activity.mTextInfo.setText("Tag not recognized");
             return;
+        } else {
+            activity.mTextInfo.setText("");
         }
 
-        //IF no destination defined
-        //    Chiedi all'utente di scegliere una destinazione
-        //    Inizializza il navigatore
         if (activity.mDestination == null) {
             activity.mTextInfo.setText("Choose a destination!");
-            //activity.mConversationArrayAdapter.add("No destination selected. Select a destination to navigate.");
             return;
         } else if(!activity.mNav.isInitialized() || !activity.initialized) { //Init the navigator only if it wasn't initialized yet
             activity.mNav.initNavigation(nextNode, activity.mDestination);
@@ -113,8 +112,11 @@ public class BluetoothReaderDemoActivity extends Activity {
 
         //4) Manda in output la posizione al cieco.
         activity.outputMgr.giveFeedbackToUser(nextDirection);
-        activity.mConversationArrayAdapter.add("Next direction: "+nextDirection+"\nNext node in path: "+
-                activity.mNav.getNextNodeInPath_debug(uid));
+        if(activity.mNav.isInitialized())
+            activity.mConversationArrayAdapter.add("Next direction: "+nextDirection+"\nNext node in path: "+
+                activity.mNav.getNextNodeInPath_debug(nextNode));
+        else
+            Log.e(TAG, "Navigation was called with an uninitialized navigator!");
     }
 
     @Override
@@ -407,6 +409,9 @@ public class BluetoothReaderDemoActivity extends Activity {
                                 (byte[]) msg.obj, msg.arg1));
                         String readMessage = (new StringBuilder(s3)).toString();
 
+                        if(readMessage.contains("200808203")) //TODO: Add the other possible answer codes!(Find a way to spot this..)
+                            break; //If we read an answer from the reader and not a UID from a tag, ignore the rest.
+
                         activity.zzc += readMessage;
                         System.out.println(activity.zzc);
                         String readUID = null;
@@ -421,6 +426,8 @@ public class BluetoothReaderDemoActivity extends Activity {
                             //formattedData.append("\n> Data Length: 0x").append(activity.zzc.substring(4, 6));
                             //formattedData.append("\n> Status code: 0x").append(activity.zzc.substring(6, 8));
                             //1) Leggi lo UID del tag letto
+                            if(activity.zzc.length() < 9)
+                                break; //Fix per stringhe troppo corte (che non contengono UID, sono solo comandi ritornati dal reader)
                             readUID = activity.zzc.substring(8, activity.zzc.length() - 4);
                             //formattedData.append("\n> Data: 0x").append(readUID);
                             //formattedData.append("\n> BCC: 0x").append(activity.zzc.substring(activity.zzc.length() - 4, activity.zzc.length() - 2)).append("\n");

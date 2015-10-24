@@ -3,6 +3,7 @@ package lingfeng.BluetoothReader.Demo;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -189,7 +190,20 @@ public class RecorderActivity extends Activity {
 
         //Open (or create if not existing) the mapping file
         File file = new File(getFilesDir(), getResources().getString(R.string.uid_node_map_fname));
-        if(!file.exists()) {
+        Log.i(TAG, "Creating mapping file "+file.getAbsolutePath());
+        try {
+            mDoc = db.parse(file);
+        } catch (SAXException e) {
+            mDoc = null;
+        } catch (IOException e) {
+            mDoc = null;
+        }
+
+        Element ele = (Element) mDoc.getDocumentElement();
+        if(ele == null ||! ele.getTagName().equals("mapping") || ele.getChildNodes().getLength()== 0) //If the file is invalid...
+            mDoc = null;
+
+        if(mDoc == null) {
             //Create a new DOM and set up the basic elements (root and nodes)
             mDoc = db.newDocument();
             Element root = mDoc.createElement("mapping");
@@ -197,6 +211,7 @@ public class RecorderActivity extends Activity {
             for(String n : node_ids) {
                 Element el = mDoc.createElement("node");
                 el.setAttribute("id", n);
+                root.appendChild(el);
             }
 
         } else {
@@ -280,6 +295,33 @@ public class RecorderActivity extends Activity {
         }
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult " + resultCode);
+        switch (requestCode) {
+            case REQUEST_CONNECT_DEVICE:
+                // When DeviceListActivity returns with a device to connect
+                if (resultCode == Activity.RESULT_OK) {
+                    // Get the device MAC address
+                    String address = data.getExtras()
+                            .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                    // Get the BLuetoothDevice object
+                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+                    // Attempt to connect to the device
+                    mChatService.connect(device);
+                }
+                break;
+            case REQUEST_ENABLE_BT:
+                if (resultCode == Activity.RESULT_OK) {
+                    setupChat();
+                } else {
+                    Log.d(TAG, "BT not enabled");
+                    Toast.makeText(this, R.string.bt_not_enabled_leaving,
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+        }
+    }
+
     private static class MyHandler extends Handler {
         private final WeakReference<RecorderActivity> mActivity;
 
@@ -321,6 +363,9 @@ public class RecorderActivity extends Activity {
 
                         activity.partialPacketReceived += readMessage;
                         if (activity.partialPacketReceived.length() > 4) {
+                            //TODO: Trova il punto in cui inizia lo UID del tag e usa una string.find per trovare l'indice corretto invece di 8
+                            if(activity.partialPacketReceived.length() < 9)
+                                return;
                             activity.uid = activity.partialPacketReceived.substring(8, activity.partialPacketReceived.length() - 4);
                             activity.partialPacketReceived = "";
                             activity.mTextLastRecord.setText("Read UID "+activity.uid);
