@@ -5,8 +5,6 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-import android.nfc.NfcAdapter;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -83,15 +81,15 @@ public class BluetoothReaderDemoActivity extends Activity {
     private UIDToNodeTranslator translator;
 
     private static void navigate(String uid, BluetoothReaderDemoActivity activity) {
-        Log.i(TAG, "Navigating from node "+uid);
+        Log.i(TAG, "Navigating from node " + uid);
         activity.mConversationArrayAdapter.add("Tag UID: " + uid);
 
-        String nextNode = null;
+        String node_id = null;
 
-        nextNode = activity.translator.getNodeId(uid);
+        node_id = activity.translator.getNodeId(uid);
         //nextNode = uid; //TODO: Remove this when translator will be implemented
-        Log.d(TAG, "Read tag with UID "+uid+" that was translated to Node ID "+nextNode);
-        if(nextNode == null) {
+        Log.d(TAG, "Read tag with UID "+uid+" that was translated to Node ID "+node_id);
+        if(node_id == null) {
             Log.e(TAG, "Translator could not find a match for tag with UID "+uid);
             activity.mTextInfo.setText("Tag not recognized");
             return;
@@ -103,18 +101,18 @@ public class BluetoothReaderDemoActivity extends Activity {
             activity.mTextInfo.setText("Choose a destination!");
             return;
         } else if(!activity.mNav.isInitialized() || !activity.initialized) { //Init the navigator only if it wasn't initialized yet
-            activity.mNav.initNavigation(nextNode, activity.mDestination);
+            activity.mNav.initNavigation(node_id, activity.mDestination);
             activity.initialized = true;
         }
 
         //3) Ottieni dal navigatore la direzione in cui andare, passandogli la posizione corrente
-        Direction nextDirection = activity.mNav.getNextDirection(nextNode);
+        Direction nextDirection = activity.mNav.getNextDirection(node_id);
 
         //4) Manda in output la posizione al cieco.
         activity.outputMgr.giveFeedbackToUser(nextDirection);
         if(activity.mNav.isInitialized())
-            activity.mConversationArrayAdapter.add("Next direction: "+nextDirection+"\nNext node in path: "+
-                activity.mNav.getNextNodeInPath_debug(nextNode));
+            activity.mConversationArrayAdapter.add("Found node "+node_id+"\nNext direction: "+nextDirection+"\nNext node in path: "+
+                activity.mNav.getNextNodeInPath_debug(node_id));
         else
             Log.e(TAG, "Navigation was called with an uninitialized navigator!");
     }
