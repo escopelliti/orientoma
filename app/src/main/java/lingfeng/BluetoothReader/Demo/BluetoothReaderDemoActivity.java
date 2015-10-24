@@ -280,17 +280,6 @@ public class BluetoothReaderDemoActivity extends Activity {
     @Override
     public synchronized void onResume() {
         super.onResume();
-
-        //Handle ACTION_TAG_DISCOVERED intent (mirror the bluetooth reader behaviour but with the phone NFC instead)
-        if ( getIntent().getAction() != null && getIntent().getAction().equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
-            Tag tag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            String uid = byte2HexStr(tag.getId(), tag.getId().length);
-            Toast.makeText(this, uid, Toast.LENGTH_LONG).show();
-            Log.d(TAG, "Found NFC tag with UID "+uid);
-            navigate(uid, this);
-            return;
-        }
-
         if (D)
             Log.e(TAG, "+ ON RESUME +");
 

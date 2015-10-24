@@ -255,6 +255,15 @@ public class RecorderActivity extends Activity {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mChatService != null) {
+            mChatService.stop();
+            Log.e(TAG, "--- ON DESTROY ---");
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.option_menu, menu);
