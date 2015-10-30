@@ -82,19 +82,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <Button android:id="@+id/button_clear"
-                android:layout_width="fill_parent"
+                android:layout_width="137dp"
                 android:layout_height="80dp"
                 android:text="Clear"
-                android:layout_weight="1"
-                android:textSize="24dp" />
+                    android:textSize="24dp" />
 
             <Button
-                android:layout_width="fill_parent"
+                android:layout_width="167dp"
                 android:layout_height="80dp"
                 android:text="Fake Read"
                 android:id="@+id/button_read_node"
-                android:layout_weight="1"
                 android:textSize="24dp" />
+
+            <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:text="VR"
+                    android:id="@+id/button_speech_to_text"
+                    android:textSize="24dp"
+            />
 
         </LinearLayout>
 
@@ -133,4 +139,5 @@
             android:stackFromBottom="true"
             android:transcriptMode="alwaysScroll"/>
     </LinearLayout>
+
 </RelativeLayout>

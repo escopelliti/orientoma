@@ -55,10 +55,11 @@ public class BluetoothReaderDemoActivity extends Activity {
     private static final int REQUEST_ENABLE_BT = 2;
 
     // Layout Views
-	private TextView mTextInfo;
+    private TextView mTextInfo;
     private ListView mConversationView;
     private Button mClearButton;
     private Button mSendFakeReadButton;
+    private Button speechToTextButton;
     private Switch mCheckld = null;
     private Switch mCheckbeep = null;
     private Spinner mDestinationPicker = null;
@@ -72,6 +73,10 @@ public class BluetoothReaderDemoActivity extends Activity {
     // Member object for the chat services
     private BluetoothChatService mChatService = null;
 
+    public void setmDestination(String mDestination) {
+        this.mDestination = mDestination;
+    }
+
     //Navigation data
     private String mDestination = null;
     private Navigator mNav;
@@ -79,6 +84,8 @@ public class BluetoothReaderDemoActivity extends Activity {
     private String fakeUID = "";
     private boolean initialized = false;
     private UIDToNodeTranslator translator;
+
+    public static Handler mUiHandler = null;
 
     private static void navigate(String uid, BluetoothReaderDemoActivity activity) {
         Log.i(TAG, "Navigating from node " + uid);
@@ -88,9 +95,9 @@ public class BluetoothReaderDemoActivity extends Activity {
 
         node_id = activity.translator.getNodeId(uid);
         //nextNode = uid; //TODO: Remove this when translator will be implemented
-        Log.d(TAG, "Read tag with UID "+uid+" that was translated to Node ID "+node_id);
-        if(node_id == null) {
-            Log.e(TAG, "Translator could not find a match for tag with UID "+uid);
+        Log.d(TAG, "Read tag with UID " + uid + " that was translated to Node ID " + node_id);
+        if (node_id == null) {
+            Log.e(TAG, "Translator could not find a match for tag with UID " + uid);
             activity.mTextInfo.setText("Tag not recognized");
             return;
         } else {
@@ -100,7 +107,7 @@ public class BluetoothReaderDemoActivity extends Activity {
         if (activity.mDestination == null) {
             activity.mTextInfo.setText("Choose a destination!");
             return;
-        } else if(!activity.mNav.isInitialized() || !activity.initialized) { //Init the navigator only if it wasn't initialized yet
+        } else if (!activity.mNav.isInitialized() || !activity.initialized) { //Init the navigator only if it wasn't initialized yet
             activity.mNav.initNavigation(node_id, activity.mDestination);
             activity.initialized = true;
         }
@@ -110,9 +117,9 @@ public class BluetoothReaderDemoActivity extends Activity {
 
         //4) Manda in output la posizione al cieco.
         activity.outputMgr.giveFeedbackToUser(nextDirection);
-        if(activity.mNav.isInitialized())
-            activity.mConversationArrayAdapter.add("Found node "+node_id+"\nNext direction: "+nextDirection+"\nNext node in path: "+
-                activity.mNav.getNextNodeInPath_debug(node_id));
+        if (activity.mNav.isInitialized())
+            activity.mConversationArrayAdapter.add("Found node " + node_id + "\nNext direction: " + nextDirection + "\nNext node in path: " +
+                    activity.mNav.getNextNodeInPath_debug(node_id));
         else
             Log.e(TAG, "Navigation was called with an uninitialized navigator!");
     }
@@ -149,11 +156,18 @@ public class BluetoothReaderDemoActivity extends Activity {
         mSendFakeReadButton = (Button) findViewById(R.id.button_read_node);
         mSendFakeReadButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                if(fakeUID.length() > 0) {
+                if (fakeUID.length() > 0) {
                     navigate(fakeUID, BluetoothReaderDemoActivity.this);
                 } else {
                     mTextInfo.setText("Seleziona un nodo");
                 }
+            }
+        });
+
+        speechToTextButton = (Button) findViewById(R.id.button_speech_to_text);
+        speechToTextButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                startService(new Intent(getBaseContext(), SpeechToTextService.class));
             }
         });
 
@@ -254,6 +268,23 @@ public class BluetoothReaderDemoActivity extends Activity {
         //Inizializza il translator con il mapping fra UID e Node id
         translator = new UIDToNodeTranslator();
         translator.init(this);
+
+        mUiHandler = new Handler() // Receive messages from service class
+        {
+            public void handleMessage(Message msg)
+            {
+                switch(msg.what)
+                {
+                    case 0:
+                        // add the status which came from service and show on GUI
+                        mDestination = msg.obj.toString();
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        };
     }
 
     @Override
@@ -327,6 +358,7 @@ public class BluetoothReaderDemoActivity extends Activity {
         if (D)
             Log.e(TAG, "--- ON DESTROY ---");
         outputMgr.shutdown();
+        stopService(new Intent(getBaseContext(), SpeechToTextService.class));
     }
 
     private void ensureDiscoverable() {
@@ -396,7 +428,7 @@ public class BluetoothReaderDemoActivity extends Activity {
                                 (byte[]) msg.obj, msg.arg1));
                         String readMessage = (new StringBuilder(s3)).toString();
 
-                        if(readMessage.contains("200808203")) //TODO: Add the other possible answer codes!(Find a way to spot this..)
+                        if (readMessage.contains("200808203")) //TODO: Add the other possible answer codes!(Find a way to spot this..)
                             break; //If we read an answer from the reader and not a UID from a tag, ignore the rest.
 
                         activity.zzc += readMessage;
@@ -413,7 +445,7 @@ public class BluetoothReaderDemoActivity extends Activity {
                             //formattedData.append("\n> Data Length: 0x").append(activity.zzc.substring(4, 6));
                             //formattedData.append("\n> Status code: 0x").append(activity.zzc.substring(6, 8));
                             //1) Leggi lo UID del tag letto
-                            if(activity.zzc.length() < 9)
+                            if (activity.zzc.length() < 9)
                                 break; //Fix per stringhe troppo corte (che non contengono UID, sono solo comandi ritornati dal reader)
                             readUID = activity.zzc.substring(8, activity.zzc.length() - 4);
                             //formattedData.append("\n> Data: 0x").append(readUID);
@@ -421,7 +453,7 @@ public class BluetoothReaderDemoActivity extends Activity {
                             activity.zzc = "";
                         } else return;
 
-						//2) fai la navigazione
+                        //2) fai la navigazione
                         navigate(readUID, activity);
                         break;
 
