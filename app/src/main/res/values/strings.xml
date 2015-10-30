@@ -22,6 +22,7 @@
     <!-- Options Menu -->
     <string name="connect">Connect a device</string>
     <string name="discoverable">Make discoverable</string>
+    <string name="wipe_mapping">Wipe mappings</string>
 
     <!-- Recorder -->
     <string name="uid_node_map_fname">uid_map.xml</string>

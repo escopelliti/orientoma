@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,10 +50,10 @@ public class RecorderActivity extends Activity {
 
     //Layout views
     private TextView mTextLastRecord;
-    private TextView mTextRecordsHistory;
     private Spinner mSpinnerNodes;
     private Button mButtonRecord;
     private TextView mTextInfo;
+    private ListView mListMappings;
 
     //Fields
     private String node_id = "";
@@ -93,9 +95,9 @@ public class RecorderActivity extends Activity {
         //Load controls
         mTextInfo = (TextView) findViewById(R.id.text_info_rec);
         mTextLastRecord = (TextView) findViewById(R.id.text_last_record);
-        mTextRecordsHistory = (TextView) findViewById(R.id.textView_output_history);
         mSpinnerNodes = (Spinner) findViewById(R.id.spinner_node);
         mButtonRecord = (Button) findViewById(R.id.button_store_uid);
+        mListMappings = (ListView) findViewById(R.id.list_mappings);
 
         //Set up listeners
         mSpinnerNodes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -114,7 +116,7 @@ public class RecorderActivity extends Activity {
             @Override
             public void onClick(View v) {
                 //If one of the two strings is empty, we don't do anything
-                if(uid == null || uid.length() == 0 || node_id == null || node_id.length() == 0) {
+                if (uid == null || uid.length() == 0 || node_id == null || node_id.length() == 0) {
                     Log.d(TAG, "buttonRecord.onClick called with empty strings.");
                     mTextInfo.setText("Read a tag before trying to store a record");
                     return;
@@ -123,7 +125,7 @@ public class RecorderActivity extends Activity {
                 //If there is already a <uid> node with the current uid, return
                 //NOTE: I could use getElementById to search directly on the whole
                 Element e = mDoc.getElementById(uid);
-                if(e != null) {
+                if (e != null) {
                     Log.d(TAG, "Tried to store a new record with uid '" + uid + "', but one node is already in the DOM");
 
                     mTextInfo.setText("This uid is already mapped to " + ((Element) e.getParentNode()).getAttribute("id"));
@@ -135,13 +137,14 @@ public class RecorderActivity extends Activity {
                 Element c = mDoc.createElement("uid");
                 c.setAttribute("id", uid);
                 e.appendChild(c);
-                Log.d(TAG, "Appended UID "+uid+" to node "+node_id);
+                Log.d(TAG, "Appended UID " + uid + " to node " + node_id);
 
                 //Write some output to the user
-                mTextLastRecord.setText("Added UID "+uid+" to node "+node_id+"\n"+mTextLastRecord.getText());
+                mTextLastRecord.setText("Added UID " + uid + " to node " + node_id + "\n" + mTextLastRecord.getText());
                 mTextInfo.setText("");
             }
         });
+        registerForContextMenu(mListMappings);
     }
 
     @Override
@@ -232,10 +235,18 @@ public class RecorderActivity extends Activity {
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinnerNodes.setAdapter(dataAdapter);
 
+        //Add to the listView the existing mappings
+        List<Element> list = new LinkedList<Element>();
+        NodeList uids = mDoc.getElementsByTagName("uid");
+        for(int i=0; i<uids.getLength(); i++) {
+            list.add((Element)uids.item(i));
+        }
+        CustomAdapter customAdapter = new CustomAdapter(this, list);
+        mListMappings.setAdapter(customAdapter);
+
         //Reset texts as needed
         mTextInfo.setText("");
         mTextLastRecord.setText("");
-        mTextRecordsHistory.setText("");
 
         Log.d(TAG, "onStart completed");
     }
@@ -266,8 +277,36 @@ public class RecorderActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.option_menu, menu);
+        inflater.inflate(R.menu.recorder_options_menu, menu);
         return true;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo); //TODO: Questo va lasciato o no?
+        //Handle contextMenu creation for the listview
+        if(v.getId() == R.id.list_mappings) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+            Element e = (Element)mListMappings.getAdapter().getItem(info.position);
+            Element p = (Element) e.getParentNode();
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.context_menu, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.delete:
+                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                Element e = (Element)mListMappings.getAdapter().getItem(info.position);
+                Element p = (Element) e.getParentNode();
+                p.removeChild(e);
+                CustomAdapter adapter = (CustomAdapter)mListMappings.getAdapter();
+                adapter.remove(e);
+                return true;
+        }
+        return false;
     }
 
     @Override
@@ -284,8 +323,28 @@ public class RecorderActivity extends Activity {
                 // Ensure this device is discoverable by others
                 ensureDiscoverable();
                 return true;
+            case R.id.wipe_mapping:
+                // Delete the mappings done so far
+                wipeMappings();
+                return true;
         }
         return false;
+    }
+
+    private void wipeMappings() {
+        Log.i(TAG, "Wiping the previously stored mappings");
+        //Go through every <node> element and remove each of its children
+        NodeList nodes = mDoc.getDocumentElement().getChildNodes();
+        for(int i=0; i<nodes.getLength(); i++) {
+            NodeList uids = nodes.item(i).getChildNodes();
+            for(int j=0; j<uids.getLength(); j++) {
+                nodes.item(i).removeChild(uids.item(j));
+            }
+        }
+        //Writeback to the xml file is done in the onStop method.
+
+        //Clear the listView
+        ((CustomAdapter)mListMappings.getAdapter()).clear();
     }
 
     private void setupChat() {
