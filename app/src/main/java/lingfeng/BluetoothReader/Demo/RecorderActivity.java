@@ -192,7 +192,7 @@ public class RecorderActivity extends Activity {
         }
 
         //Open (or create if not existing) the mapping file
-        File file = new File(getFilesDir(), getResources().getString(R.string.uid_node_map_fname));
+        File file = new File(getExternalFilesDir(null), getResources().getString(R.string.uid_node_map_fname));
         Log.i(TAG, "Creating mapping file "+file.getAbsolutePath());
         try {
             mDoc = db.parse(file);
@@ -202,9 +202,11 @@ public class RecorderActivity extends Activity {
             mDoc = null;
         }
 
-        Element ele = (Element) mDoc.getDocumentElement();
-        if(ele == null ||! ele.getTagName().equals("mapping") || ele.getChildNodes().getLength()== 0) //If the file is invalid...
-            mDoc = null;
+        if(mDoc != null) {
+            Element ele = (Element) mDoc.getDocumentElement();
+            if (ele == null || !ele.getTagName().equals("mapping") || ele.getChildNodes().getLength() == 0) //If the file is invalid...
+                mDoc = null;
+        }
 
         if(mDoc == null) {
             //Create a new DOM and set up the basic elements (root and nodes)
@@ -257,7 +259,7 @@ public class RecorderActivity extends Activity {
         try {
             //Save the DOM object to an xml file
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            Result output = new StreamResult( new File(getFilesDir(), getResources().getString(R.string.uid_node_map_fname)));
+            Result output = new StreamResult( new File(getExternalFilesDir(null), getResources().getString(R.string.uid_node_map_fname)));
             Source input = new DOMSource(mDoc);
             transformer.transform(input, output);
         } catch (TransformerException e) {
