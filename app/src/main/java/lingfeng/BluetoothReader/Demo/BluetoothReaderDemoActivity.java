@@ -278,10 +278,20 @@ public class BluetoothReaderDemoActivity extends Activity {
                     case 0:
                         // add the status which came from service and show on GUI
                         String read_dest = msg.obj.toString();
-                        if( ((ArrayAdapter)mDestinationPicker.getAdapter()).getPosition(mDestination) >=0 && ((ArrayAdapter)mDestinationPicker.getAdapter()).getPosition(mDestination) < ((ArrayAdapter)mDestinationPicker.getAdapter()).getCount()) {
+
+                        int pos = -1;
+                        ArrayAdapter apt = (ArrayAdapter) mDestinationPicker.getAdapter();
+                        for(int i=0; i<apt.getCount(); i++) {
+                            if(((String)apt.getItem(i)).equals(read_dest)) {
+                                pos = i;
+                                break;
+                            }
+                        }
+
+                        if( pos != -1 ) {
                             mDestination = read_dest;
                             initialized = false;
-                            mDestinationPicker.setSelection(((ArrayAdapter)mDestinationPicker.getAdapter()).getPosition(mDestination));
+                            mDestinationPicker.setSelection(pos);
                         } else {
                             Log.e(TAG, "Destinazione "+read_dest+" inesistente");
                         }
