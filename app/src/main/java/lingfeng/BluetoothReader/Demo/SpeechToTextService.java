@@ -82,6 +82,7 @@ public class SpeechToTextService extends Service {
                     target.mSpeechRecognizer.cancel();
                     target.mIsListening = false;
                     Log.d("my service", "message canceled recognizer"); //$NON-NLS-1$
+
                     break;
             }
         }
@@ -103,8 +104,9 @@ public class SpeechToTextService extends Service {
             Message message = Message.obtain(null, MSG_RECOGNIZER_CANCEL);
             try {
                 mServerMessenger.send(message);
-                message = Message.obtain(null, MSG_RECOGNIZER_START_LISTENING);
-                mServerMessenger.send(message);
+                stopService(new Intent(getBaseContext(), SpeechToTextService.class));
+//                message = Message.obtain(null, MSG_RECOGNIZER_START_LISTENING);
+//                mServerMessenger.send(message);
             } catch (RemoteException e) {
 
             }
@@ -157,12 +159,13 @@ public class SpeechToTextService extends Service {
                 mNoSpeechCountDown.cancel();
             }
             mIsListening = false;
-            Message message = Message.obtain(null, MSG_RECOGNIZER_START_LISTENING);
-            try {
-                mServerMessenger.send(message);
-            } catch (RemoteException e) {
-                Log.d("my service", "error = " + error);
-            }
+            stopService(new Intent(getBaseContext(), SpeechToTextService.class));
+//            Message message = Message.obtain(null, MSG_RECOGNIZER_START_LISTENING);
+//            try {
+//                mServerMessenger.send(message);
+//            } catch (RemoteException e) {
+//                Log.d("my service", "error = " + error);
+//            }
             Log.d("my service", "error = " + error); //$NON-NLS-1$
         }
 

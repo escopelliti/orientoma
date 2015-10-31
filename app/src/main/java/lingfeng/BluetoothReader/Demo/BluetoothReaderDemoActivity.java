@@ -288,6 +288,7 @@ public class BluetoothReaderDemoActivity extends Activity {
                         break;
 
                     default:
+                        stopService(new Intent(getBaseContext(), SpeechToTextService.class));
                         break;
                 }
             }
