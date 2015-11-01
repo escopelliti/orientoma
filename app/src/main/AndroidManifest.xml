@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="lingfeng.BluetoothReader.Demo"
+          package="it.orientoma.app"
           android:versionCode="1"
           android:versionName="1.0">
 
@@ -18,7 +18,7 @@
     <application
             android:icon="@drawable/ic_launcher"
             android:label="@string/app_name">
-        <activity android:name=".FunctionSelectionActivity"
+        <activity android:name="it.orientoma.app.FunctionSelectionActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -26,23 +26,23 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".RecorderActivity">
+        <activity android:name="it.orientoma.app.RecorderActivity">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".FunctionSelectionActivity"/>
+                    android:value="it.orientoma.app.FunctionSelectionActivity"/>
         </activity>
 
-        <activity android:name=".BluetoothReaderDemoActivity">
+        <activity android:name="it.orientoma.app.BluetoothReaderDemoActivity">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".FunctionSelectionActivity"/>
+                    android:value="it.orientoma.app.FunctionSelectionActivity"/>
         </activity>
 
         <activity
-                android:name=".DeviceListActivity"
+                android:name="it.orientoma.app.DeviceListActivity"
                 android:configChanges="orientation|keyboardHidden"
                 android:label="@string/select_device"/>
-        <service android:name=".SpeechToTextService"/>
+        <service android:name="it.orientoma.app.SpeechToTextService"/>
     </application>
 
 </manifest>
