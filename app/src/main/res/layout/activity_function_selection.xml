@@ -14,7 +14,7 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:onClick="openNavigator"
-            android:text="Navigator"
+            android:text="Navigatore"
             android:textSize="40dp" />
 
         <Button

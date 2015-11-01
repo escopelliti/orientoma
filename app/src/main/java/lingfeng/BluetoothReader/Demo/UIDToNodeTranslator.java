@@ -1,22 +1,21 @@
 package lingfeng.BluetoothReader.Demo;
 
 import android.util.Log;
-
+import it.orientoma.app.R;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.IOException;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
 
 public class UIDToNodeTranslator {
 
-    private Document mDoc;
     private static final String TAG = "Orientoma.Translator";
+    private Document mDoc;
 
     public void init(BluetoothReaderDemoActivity activity) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -37,13 +36,13 @@ public class UIDToNodeTranslator {
     }
 
     public String getNodeId(String uid) {
-        if(mDoc == null)
+        if (mDoc == null)
             return null;
         Element e = (Element) mDoc.getElementById(uid);
-        if(e == null)
+        if (e == null)
             return null;
-        Element n = (Element)e.getParentNode();
-        if(n == null) //This should be useless as in theory every <uid> tag is always under a <node> tag, but you never know..
+        Element n = (Element) e.getParentNode();
+        if (n == null) //This should be useless as in theory every <uid> tag is always under a <node> tag, but you never know..
             return null;
         return n.getAttribute("id");
     }

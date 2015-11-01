@@ -27,6 +27,7 @@ import android.widget.Toast;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 
+import it.orientoma.app.R;
 import lingfeng.BluetoothReader.Demo.navigation.Direction;
 import lingfeng.BluetoothReader.Demo.navigation.Navigator;
 
@@ -153,16 +154,16 @@ public class BluetoothReaderDemoActivity extends Activity {
             }
         });
 
-        mSendFakeReadButton = (Button) findViewById(R.id.button_read_node);
-        mSendFakeReadButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                if (fakeUID.length() > 0) {
-                    navigate(fakeUID, BluetoothReaderDemoActivity.this);
-                } else {
-                    mTextInfo.setText("Seleziona un nodo");
-                }
-            }
-        });
+//        mSendFakeReadButton = (Button) findViewById(R.id.button_read_node);
+//        mSendFakeReadButton.setOnClickListener(new OnClickListener() {
+//            public void onClick(View v) {
+//                if (fakeUID.length() > 0) {
+//                    navigate(fakeUID, BluetoothReaderDemoActivity.this);
+//                } else {
+//                    mTextInfo.setText("Seleziona un nodo");
+//                }
+//            }
+//        });
 
         speechToTextButton = (Button) findViewById(R.id.button_speech_to_text);
         speechToTextButton.setOnClickListener(new OnClickListener() {
@@ -171,51 +172,51 @@ public class BluetoothReaderDemoActivity extends Activity {
             }
         });
 
-        mCheckld = (Switch) findViewById(R.id.switch_auto);
-        mCheckld.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    sendMsg = "0200020F010C03";
-                    Log.i(TAG, "Enabling automatic reading of tags");
-                    try {
-                        sendMessage(sendMsg);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    sendMsg = "0200020F020F03";
-                    Log.i(TAG, "Disabling automatic reading of tags");
-                    try {
-                        sendMessage(sendMsg);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+//        mCheckld = (Switch) findViewById(R.id.switch_auto);
+//        mCheckld.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (isChecked) {
+//                    sendMsg = "0200020F010C03";
+//                    Log.i(TAG, "Enabling automatic reading of tags");
+//                    try {
+//                        sendMessage(sendMsg);
+//                    } catch (UnsupportedEncodingException e) {
+//                        e.printStackTrace();
+//                    }
+//                } else {
+//                    sendMsg = "0200020F020F03";
+//                    Log.i(TAG, "Disabling automatic reading of tags");
+//                    try {
+//                        sendMessage(sendMsg);
+//                    } catch (UnsupportedEncodingException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
 
-        mCheckbeep = (Switch) findViewById(R.id.switch_beep);
-        mCheckbeep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    sendMsg = "0200020E010D03";
-                    Log.i(TAG, "Enabling beeping on read");
-                    try {
-                        sendMessage(sendMsg);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    sendMsg = "0200020E020E03";
-                    Log.i(TAG, "Disabling beeping on read");
-                    try {
-                        sendMessage(sendMsg);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+//        mCheckbeep = (Switch) findViewById(R.id.switch_beep);
+//        mCheckbeep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (isChecked) {
+//                    sendMsg = "0200020E010D03";
+//                    Log.i(TAG, "Enabling beeping on read");
+//                    try {
+//                        sendMessage(sendMsg);
+//                    } catch (UnsupportedEncodingException e) {
+//                        e.printStackTrace();
+//                    }
+//                } else {
+//                    sendMsg = "0200020E020E03";
+//                    Log.i(TAG, "Disabling beeping on read");
+//                    try {
+//                        sendMessage(sendMsg);
+//                    } catch (UnsupportedEncodingException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
 
         //Carica il grafo per la mappa
         try {
@@ -509,6 +510,15 @@ public class BluetoothReaderDemoActivity extends Activity {
                     BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
                     // Attempt to connect to the device
                     mChatService.connect(device);
+
+                    //TODO: TO BE TESTED
+                    sendMsg = "0200020F010C03";
+                    Log.i(TAG, "Enabling automatic reading of tags");
+                    try {
+                        sendMessage(sendMsg);
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case REQUEST_ENABLE_BT:

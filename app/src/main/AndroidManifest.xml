@@ -21,7 +21,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name">
         <activity
-            android:name="it.orientoma.app.FunctionSelectionActivity"
+            android:name="lingfeng.BluetoothReader.Demo.FunctionSelectionActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,24 +29,24 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="it.orientoma.app.RecorderActivity">
+        <activity android:name="lingfeng.BluetoothReader.Demo.RecorderActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="it.orientoma.app.FunctionSelectionActivity" />
+                android:value="lingfeng.BluetoothReader.Demo.FunctionSelectionActivity" />
         </activity>
 
-        <activity android:name="it.orientoma.app.BluetoothReaderDemoActivity">
+        <activity android:name="lingfeng.BluetoothReader.Demo.BluetoothReaderDemoActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="it.orientoma.app.FunctionSelectionActivity" />
+                android:value="lingfeng.BluetoothReader.Demo.FunctionSelectionActivity" />
         </activity>
 
         <activity
-            android:name="it.orientoma.app.DeviceListActivity"
+            android:name="lingfeng.BluetoothReader.Demo.DeviceListActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/select_device" />
 
-        <service android:name="it.orientoma.app.SpeechToTextService" />
+        <service android:name="lingfeng.BluetoothReader.Demo.SpeechToTextService" />
     </application>
 
 </manifest>

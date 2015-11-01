@@ -41,9 +41,9 @@
 
             <TextView
                 android:id="@+id/textView2"
-                android:layout_width="100dp"
+                android:layout_width="124dp"
                 android:layout_height="wrap_content"
-                android:text="Destination"
+                android:text="Destinazione"
                 android:textSize="18dp" />
 
             <Spinner
@@ -59,9 +59,9 @@
 
             <TextView
                 android:id="@+id/textView"
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Next Node"
+                android:text="Prossimo nodo"
                 android:textSize="18dp" />
 
             <Spinner
@@ -84,24 +84,17 @@
 
             <Button
                 android:id="@+id/button_clear"
-                android:layout_width="137dp"
+                android:layout_width="186dp"
                 android:layout_height="80dp"
-                android:text="Clear"
-                android:textSize="24dp" />
-
-            <Button
-                android:id="@+id/button_read_node"
-                android:layout_width="167dp"
-                android:layout_height="80dp"
-                android:text="Fake Read"
-                android:textSize="24dp" />
+                android:text="CLEAR"
+                android:textSize="34dp" />
 
             <Button
                 android:id="@+id/button_speech_to_text"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:text="VR"
-                android:textSize="24dp" />
+                android:textSize="34dp" />
 
         </LinearLayout>
 
@@ -110,20 +103,6 @@
             android:layout_height="wrap_content"
             android:baselineAligned="false"
             android:orientation="horizontal">
-
-            <Switch
-                android:id="@+id/switch_beep"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Beep" />
-
-            <Switch
-                android:id="@+id/switch_auto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Auto" />
 
         </LinearLayout>
 
