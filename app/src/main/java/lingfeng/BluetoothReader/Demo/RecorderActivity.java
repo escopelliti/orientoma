@@ -370,13 +370,12 @@ public class RecorderActivity extends Activity {
         }
 
         Element root = mDoc.createElement("mapping");
-        mDoc.appendChild(root);
+        mDoc.replaceChild(root, mDoc.getDocumentElement());
         for(String n : node_ids) {
             Element el = mDoc.createElement("node");
             el.setAttribute("id", n);
             root.appendChild(el);
         }
-        mDoc.replaceChild(root, mDoc.getDocumentElement());
         //Writeback to the xml file is done in the onStop method.
 
         //Clear the listView
