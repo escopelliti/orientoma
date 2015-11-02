@@ -4,11 +4,11 @@
 
     <!--  BluetoothChat -->
     <string name="send">Send</string>
-    <string name="not_connected">You are not connected to a device</string>
-    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
-    <string name="title_connecting">connecting...</string>
-    <string name="title_connected_to">connected: </string>
-    <string name="title_not_connected">not connected</string>
+    <string name="not_connected">Non sei connesso a un device</string>
+    <string name="bt_not_enabled_leaving">Il Bluetooth è disattivato. Chiusura dell'applicazione in corso.</string>
+    <string name="title_connecting">in connessione...</string>
+    <string name="title_connected_to">connesso: </string>
+    <string name="title_not_connected">non connesso</string>
 
     <!--  DeviceListActivity -->
     <string name="scanning">Ricerca devices</string>
