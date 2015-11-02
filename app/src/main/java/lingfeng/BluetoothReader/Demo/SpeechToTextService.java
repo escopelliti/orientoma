@@ -193,7 +193,7 @@ public class SpeechToTextService extends Service {
         public void onResults(Bundle results) {
             String listenedResult = results.getStringArrayList("results_recognition").get(0);
             Log.d("my service", listenedResult);
-            Toast.makeText(getApplicationContext(), listenedResult, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), listenedResult, Toast.LENGTH_SHORT).show();
             stopService(new Intent(getBaseContext(), SpeechToTextService.class));
             if (null != BluetoothReaderDemoActivity.mUiHandler) {
 

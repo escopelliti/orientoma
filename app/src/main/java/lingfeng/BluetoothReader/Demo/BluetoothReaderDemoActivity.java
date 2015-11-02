@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -174,7 +175,7 @@ public class BluetoothReaderDemoActivity extends Activity {
 
         // If the adapter is null, then Bluetooth is not supported
         if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth is not available",
+            Toast.makeText(this, "Il Bluetooth non è supportato su questo telefono",
                     Toast.LENGTH_LONG).show();
             finish();
             return;
@@ -325,7 +326,9 @@ public class BluetoothReaderDemoActivity extends Activity {
                         if( pos != -1 ) {
                             mDestination = read_dest;
                             initialized = false;
+                            mDestinationPicker.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
                             mDestinationPicker.setSelection(pos);
+                            mDestinationPicker.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
                         } else {
                             Log.e(TAG, "Destinazione "+read_dest+" inesistente");
                         }
@@ -519,15 +522,15 @@ public class BluetoothReaderDemoActivity extends Activity {
                         ActionBar ab = activity.getActionBar();
                         switch (msg.arg1) {
                             case BluetoothChatService.STATE_CONNECTED:
-                                ab.setTitle("Navigator - " + activity.getResources().getString(R.string.title_connected_to) + " " + activity.mConnectedDeviceName);
+                                ab.setTitle("Navigatore - Lettore NFC connesso");
                                 activity.mConversationArrayAdapter.clear();
                                 break;
                             case BluetoothChatService.STATE_CONNECTING:
-                                ab.setTitle("Navigator - " + activity.getResources().getString(R.string.title_connecting));
+                                ab.setTitle("Navigatore - " + activity.getResources().getString(R.string.title_connecting));
                                 break;
                             case BluetoothChatService.STATE_LISTEN:
                             case BluetoothChatService.STATE_NONE:
-                                ab.setTitle("Navigator - " + activity.getResources().getString(R.string.title_not_connected));
+                                ab.setTitle("Navigatore - " + activity.getResources().getString(R.string.title_not_connected));
                                 break;
                         }
                         break;
@@ -575,7 +578,7 @@ public class BluetoothReaderDemoActivity extends Activity {
                         // save the connected device's name
                         activity.mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
                         Toast.makeText(activity.getApplicationContext(),
-                                "Connected to " + activity.mConnectedDeviceName,
+                                "Connesso a lettore NFC",
                                 Toast.LENGTH_SHORT).show();
                         break;
 
