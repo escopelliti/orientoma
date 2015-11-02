@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map>
+    <description>
+        This is the map of the Boella lab used in the orientoma project. Edge's weight is in
+        centimeters.
+    </description>
+    <nodes>
+        <node east="" id="1" north="" south="" west="3" />
+        <node east="" id="2" north="" south="3" west="" />
+        <node east="1" id="3" north="2" south="" west="4" />
+        <node east="3" id="4" north="5" south="" west="6" />
+        <node east="" id="5" north="" south="4" west="" />
+        <node east="4" id="6" north="" south="prova" west="11" />
+        <node east="8" id="prova" north="6" south="9" west="" />
+        <node east="" id="8" north="" south="" west="prova" />
+        <node east="" id="9" north="prova" south="" west="10" />
+        <node east="9" id="10" north="11" south="" west="" />
+        <node east="6" id="11" north="" south="10" west="12" />
+        <node east="11" id="12" north="13" south="" west="14" />
+        <node east="" id="13" north="" south="12" west="" />
+        <node east="12" id="14" north="15" south="" west="16" />
+        <node east="" id="15" north="" south="14" west="" />
+        <node east="14" id="16" north="17" south="" west="" />
+        <node east="" id="17" north="" south="16" west="" />
+    </nodes>
+    <edges>
+        <edge dest="3" src="1" weight="30" />
+        <edge dest="1" src="3" weight="30" />
+        <edge dest="3" src="2" weight="10" />
+        <edge dest="2" src="3" weight="10" />
+        <edge dest="4" src="3" weight="20" />
+        <edge dest="3" src="4" weight="20" />
+        <edge dest="5" src="4" weight="30" />
+        <edge dest="4" src="5" weight="30" />
+        <edge dest="6" src="4" weight="15" />
+        <edge dest="4" src="6" weight="15" />
+        <edge dest="9" src="prova" weight="27" />
+        <edge dest="prova" src="9" weight="27" />
+        <edge dest="prova" src="6" weight="40" />
+        <edge dest="6" src="prova" weight="40" />
+        <edge dest="8" src="prova" weight="35" />
+        <edge dest="prova" src="8" weight="35" />
+        <edge dest="9" src="10" weight="55" />
+        <edge dest="10" src="9" weight="55" />
+        <edge dest="6" src="11" weight="55" />
+        <edge dest="11" src="6" weight="55" />
+        <edge dest="11" src="10" weight="67" />
+        <edge dest="10" src="11" weight="67" />
+        <edge dest="12" src="11" weight="35" />
+        <edge dest="11" src="12" weight="35" />
+        <edge dest="13" src="12" weight="30" />
+        <edge dest="12" src="13" weight="30" />
+        <edge dest="14" src="12" weight="25" />
+        <edge dest="12" src="14" weight="25" />
+        <edge dest="15" src="14" weight="10" />
+        <edge dest="14" src="15" weight="10" />
+        <edge dest="16" src="14" weight="130" />
+        <edge dest="14" src="16" weight="130" />
+        <edge dest="17" src="16" weight="10" />
+        <edge dest="16" src="17" weight="10" />
+
+    </edges>
+</map>

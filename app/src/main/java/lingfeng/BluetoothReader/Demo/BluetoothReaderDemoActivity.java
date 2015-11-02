@@ -17,7 +17,6 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -32,29 +31,27 @@ import lingfeng.BluetoothReader.Demo.navigation.Direction;
 import lingfeng.BluetoothReader.Demo.navigation.Navigator;
 
 public class BluetoothReaderDemoActivity extends Activity {
-    /**
-     * Called when the activity is first created.
-     */
-    private static final String TAG = "Orientoma.Navigator";
-    private static final boolean D = true;
-
-    String zzc = "";
-    String sendMsg = "";
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
     public static final int MESSAGE_READ = 2; //
     public static final int MESSAGE_WRITE = 3; //
     public static final int MESSAGE_DEVICE_NAME = 4; //
     public static final int MESSAGE_TOAST = 5;
-
     // Key names received from the BluetoothChatService Handler
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
-
+    /**
+     * Called when the activity is first created.
+     */
+    private static final String TAG = "Orientoma.Navigator";
+    private static final boolean D = true;
     // Intent request codes
     private static final int REQUEST_CONNECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
-
+    public static Handler mUiHandler = null;
+    private final MyHandler mHandler = new MyHandler(this);
+    String zzc = "";
+    String sendMsg = "";
     // Layout Views
     private TextView mTextInfo;
     private ListView mConversationView;
@@ -73,11 +70,6 @@ public class BluetoothReaderDemoActivity extends Activity {
     private BluetoothAdapter mBluetoothAdapter = null;
     // Member object for the chat services
     private BluetoothChatService mChatService = null;
-
-    public void setmDestination(String mDestination) {
-        this.mDestination = mDestination;
-    }
-
     //Navigation data
     private String mDestination = null;
     private Navigator mNav;
@@ -86,8 +78,6 @@ public class BluetoothReaderDemoActivity extends Activity {
     private boolean initialized = false;
     private UIDToNodeTranslator translator;
 
-    public static Handler mUiHandler = null;
-
     private static void navigate(String uid, BluetoothReaderDemoActivity activity) {
         Log.i(TAG, "Navigating from node " + uid);
         activity.mConversationArrayAdapter.add("Tag UID: " + uid);
@@ -95,7 +85,7 @@ public class BluetoothReaderDemoActivity extends Activity {
         String node_id = null;
 
         node_id = activity.translator.getNodeId(uid);
-        //nextNode = uid; //TODO: Remove this when translator will be implemented
+        node_id = uid; //TODO: Remove this when translator will be implemented
         Log.d(TAG, "Read tag with UID " + uid + " that was translated to Node ID " + node_id);
         if (node_id == null) {
             Log.e(TAG, "Translator could not find a match for tag with UID " + uid);
@@ -123,6 +113,49 @@ public class BluetoothReaderDemoActivity extends Activity {
                     activity.mNav.getNextNodeInPath_debug(node_id));
         else
             Log.e(TAG, "Navigation was called with an uninitialized navigator!");
+    }
+
+    public static String byte2HexStr(byte abyte0[], int i) {
+        StringBuilder stringbuilder = new StringBuilder("");
+        int j = 0;
+        do {
+            if (j >= i)
+                return stringbuilder.toString().toUpperCase().trim();
+            String s = Integer.toHexString(abyte0[j] & 0xff);
+            String s1;
+            if (s.length() == 1)
+                s1 = (new StringBuilder("0")).append(s).toString();
+            else
+                s1 = s;
+            stringbuilder.append(s1);
+            j++;
+        } while (true);
+    }
+
+    public static byte[] hexStr2Bytes(String s) {
+        s = s.toString().trim().replace(" ", "");
+        int i = s.length() / 2;
+        System.out.println(i);
+        byte abyte0[] = new byte[i];
+        int j = 0;
+        do {
+            if (j >= i)
+                return abyte0;
+            int k = j * 2 + 1;
+            int l = k + 1;
+            StringBuilder stringbuilder = new StringBuilder("0x");
+            int i1 = j * 2;
+            String s1 = s.substring(i1, k);
+            StringBuilder stringbuilder1 = stringbuilder.append(s1);
+            String s2 = s.substring(k, l);
+            byte byte0 = (byte) (Integer.decode(stringbuilder1.append(s2).toString()).intValue() & 0xff);
+            abyte0[j] = byte0;
+            j++;
+        } while (true);
+    }
+
+    public void setmDestination(String mDestination) {
+        this.mDestination = mDestination;
     }
 
     @Override
@@ -220,7 +253,7 @@ public class BluetoothReaderDemoActivity extends Activity {
 
         //Carica il grafo per la mappa
         try {
-            mNav = new Navigator(this.getResources().openRawResource(R.raw.boella));
+            mNav = new Navigator(this.getResources().openRawResource(R.raw.monumentale));
             outputMgr = new OutputMgr(getApplicationContext());
         } catch (Exception e) {
             System.out.println("Mappa non trovata.");
@@ -406,6 +439,68 @@ public class BluetoothReaderDemoActivity extends Activity {
         }
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (D)
+            Log.d(TAG, "onActivityResult " + resultCode);
+        switch (requestCode) {
+            case REQUEST_CONNECT_DEVICE:
+                // When DeviceListActivity returns with a device to connect
+                if (resultCode == Activity.RESULT_OK) {
+                    // Get the device MAC address
+                    String address = data.getExtras()
+                            .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                    // Get the BLuetoothDevice object
+                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+                    // Attempt to connect to the device
+                    mChatService.connect(device);
+
+                    //TODO: TO BE TESTED
+                    sendMsg = "0200020F010C03";
+                    Log.i(TAG, "Enabling automatic reading of tags");
+                    try {
+                        sendMessage(sendMsg);
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+            case REQUEST_ENABLE_BT:
+                if (resultCode == Activity.RESULT_OK) {
+                    setupChat();
+                } else {
+                    Log.d(TAG, "BT not enabled");
+                    Toast.makeText(this, R.string.bt_not_enabled_leaving,
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.option_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.scan:
+                // Launch the DeviceListActivity to see devices and do scan
+                Intent serverIntent = new Intent(this, DeviceListActivity.class);
+                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+                //Intent serverIntent = new Intent(this, DeviceListActivity.class);
+                //  startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+                return true;
+            case R.id.discoverable:
+                // Ensure this device is discoverable by others
+                ensureDiscoverable();
+                return true;
+        }
+        return false;
+    }
+
     private static class MyHandler extends Handler {
         private final WeakReference<BluetoothReaderDemoActivity> mActivity;
 
@@ -492,108 +587,5 @@ public class BluetoothReaderDemoActivity extends Activity {
                 }
             }
         }
-    }
-
-    private final MyHandler mHandler = new MyHandler(this);
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (D)
-            Log.d(TAG, "onActivityResult " + resultCode);
-        switch (requestCode) {
-            case REQUEST_CONNECT_DEVICE:
-                // When DeviceListActivity returns with a device to connect
-                if (resultCode == Activity.RESULT_OK) {
-                    // Get the device MAC address
-                    String address = data.getExtras()
-                            .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-                    // Get the BLuetoothDevice object
-                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-                    // Attempt to connect to the device
-                    mChatService.connect(device);
-
-                    //TODO: TO BE TESTED
-                    sendMsg = "0200020F010C03";
-                    Log.i(TAG, "Enabling automatic reading of tags");
-                    try {
-                        sendMessage(sendMsg);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
-            case REQUEST_ENABLE_BT:
-                if (resultCode == Activity.RESULT_OK) {
-                    setupChat();
-                } else {
-                    Log.d(TAG, "BT not enabled");
-                    Toast.makeText(this, R.string.bt_not_enabled_leaving,
-                            Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.option_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.scan:
-                // Launch the DeviceListActivity to see devices and do scan
-                Intent serverIntent = new Intent(this, DeviceListActivity.class);
-                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-                //Intent serverIntent = new Intent(this, DeviceListActivity.class);
-                //  startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-                return true;
-            case R.id.discoverable:
-                // Ensure this device is discoverable by others
-                ensureDiscoverable();
-                return true;
-        }
-        return false;
-    }
-
-    public static String byte2HexStr(byte abyte0[], int i) {
-        StringBuilder stringbuilder = new StringBuilder("");
-        int j = 0;
-        do {
-            if (j >= i)
-                return stringbuilder.toString().toUpperCase().trim();
-            String s = Integer.toHexString(abyte0[j] & 0xff);
-            String s1;
-            if (s.length() == 1)
-                s1 = (new StringBuilder("0")).append(s).toString();
-            else
-                s1 = s;
-            stringbuilder.append(s1);
-            j++;
-        } while (true);
-    }
-
-    public static byte[] hexStr2Bytes(String s) {
-        s = s.toString().trim().replace(" ", "");
-        int i = s.length() / 2;
-        System.out.println(i);
-        byte abyte0[] = new byte[i];
-        int j = 0;
-        do {
-            if (j >= i)
-                return abyte0;
-            int k = j * 2 + 1;
-            int l = k + 1;
-            StringBuilder stringbuilder = new StringBuilder("0x");
-            int i1 = j * 2;
-            String s1 = s.substring(i1, k);
-            StringBuilder stringbuilder1 = stringbuilder.append(s1);
-            String s2 = s.substring(k, l);
-            byte byte0 = (byte) (Integer.decode(stringbuilder1.append(s2).toString()).intValue() & 0xff);
-            abyte0[j] = byte0;
-            j++;
-        } while (true);
     }
 }

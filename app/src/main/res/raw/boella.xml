@@ -10,9 +10,9 @@
         <node east="2" id="3" north="5" south="4" west="" />
         <node east="3" id="4" north="5" south="" west="" />
         <node east="3" id="5" north="6" south="" west="4" />
-        <node east="8" id="6" north="" south="5" west="7" />
-        <node east="8" id="7" north="" south="6" west="" />
-        <node east="" id="8" north="9" south="6" west="7" />
+        <node east="8" id="6" north="" south="5" west="prova" />
+        <node east="8" id="prova" north="" south="6" west="" />
+        <node east="" id="8" north="9" south="6" west="prova" />
         <node east="13" id="9" north="10" south="8" west="" />
         <node east="" id="10" north="11" south="9" west="12" />
         <node east="" id="11" north="" south="10" west="" />
@@ -33,10 +33,10 @@
         <edge dest="5" src="6" weight="18" />
         <edge dest="3" src="5" weight="60" />
         <edge dest="5" src="3" weight="60" />
-        <edge dest="7" src="6" weight="35" />
-        <edge dest="6" src="7" weight="35" />
-        <edge dest="8" src="7" weight="50" />
-        <edge dest="7" src="8" weight="50" />
+        <edge dest="prova" src="6" weight="35" />
+        <edge dest="6" src="prova" weight="35" />
+        <edge dest="8" src="prova" weight="50" />
+        <edge dest="prova" src="8" weight="50" />
         <edge dest="9" src="8" weight="10" />
         <edge dest="8" src="9" weight="10" />
         <edge dest="6" src="8" weight="77" />
