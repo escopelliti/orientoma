@@ -263,7 +263,7 @@ public class BluetoothReaderDemoActivity extends Activity {
         mDestinationPicker = (Spinner) findViewById(R.id.spinner_destination);
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, mNav.getNodeNames());
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dataAdapter.setDropDownViewResource(R.layout.custom_string_item_layout);
         mDestinationPicker.setAdapter(dataAdapter);
 
         mNextNodePicker = (Spinner) findViewById(R.id.spinner_next_node);

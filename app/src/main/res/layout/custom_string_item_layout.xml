@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/firstLine"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_above="@id/secondLine"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentTop="true"
+    android:layout_alignWithParentIfMissing="true"
+    android:gravity="center_vertical"
+    android:text="Example application"
+    android:textSize="30sp" />

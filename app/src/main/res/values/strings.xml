@@ -11,17 +11,17 @@
     <string name="title_not_connected">not connected</string>
 
     <!--  DeviceListActivity -->
-    <string name="scanning">scanning for devices...</string>
-    <string name="select_device">select a device to connect</string>
-    <string name="none_paired">No devices have been paired</string>
-    <string name="none_found">No devices found</string>
-    <string name="title_paired_devices">Paired Devices</string>
-    <string name="title_other_devices">Other Available Devices</string>
-    <string name="button_scan">Scan for devices</string>
+    <string name="scanning">Ricerca devices</string>
+    <string name="select_device">Seleziona un device a cui connetterti</string>
+    <string name="none_paired">Nessun device è accoppiato</string>
+    <string name="none_found">Nessun device trovato</string>
+    <string name="title_paired_devices">Devices Accoppiati</string>
+    <string name="title_other_devices">Altri devices disponibili</string>
+    <string name="button_scan">Scansiona per devices</string>
 
     <!-- Options Menu -->
-    <string name="connect">Connect a device</string>
-    <string name="discoverable">Make discoverable</string>
+    <string name="connect">Connetti a un device</string>
+    <string name="discoverable">Rendi visibile via bluetooth</string>
     <string name="wipe_mapping">Wipe mappings</string>
 
     <!-- Recorder -->

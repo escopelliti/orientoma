@@ -24,7 +24,8 @@
             <Spinner
                 android:id="@+id/spinner_destination"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:minHeight="30dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -73,7 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:layout_weight="1"
-                android:text="VR"
+                android:text="COMANDO VOCALE"
                 android:textSize="34dp" />
 
             <!--            <Button
