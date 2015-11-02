@@ -105,7 +105,11 @@ public class Navigator {
             //I got lost. Get a new path from here to the original destination
             this.initNavigation(my_position_id, _path.get(_path.size()-1).getId());
             index = 0;
-            _lastNodeFound = null;
+            //If I got lost because I took a wrong turn at the last node, I can exploit the lastNodeFound
+            //info to get accurate directions even on the first node after the recalculation.
+            //I need to reset the lastNodeFound only if the node where I am is not a neighbour of the last one
+            if (!my_position.isEastOf(_lastNodeFound) && !my_position.isSouthOf(_lastNodeFound) && !my_position.isWestOf(_lastNodeFound) && !my_position.isNorthOf(_lastNodeFound))
+                _lastNodeFound = null;
         }
 
         MapNode next = (MapNode)_path.get(index+1);
