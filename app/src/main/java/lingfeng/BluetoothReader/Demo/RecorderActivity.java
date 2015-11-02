@@ -7,7 +7,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+import android.os.Message   ;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -135,6 +135,10 @@ public class RecorderActivity extends Activity {
 
                 //Append a <uid> child to the correct <node> element
                 e = mDoc.getElementById(node_id);
+                if(e == null) {
+                    mTextInfo.setText("Nodo con id "+node_id+" non trovato");
+                    return;
+                }
                 Element c = mDoc.createElement("uid");
                 c.setAttribute("id", uid);
                 e.appendChild(c);
@@ -143,6 +147,8 @@ public class RecorderActivity extends Activity {
                 //Write some output to the user
                 mTextLastRecord.setText("Added UID " + uid + " to node " + node_id + "\n" + mTextLastRecord.getText());
                 mTextInfo.setText("");
+                CustomAdapter apt = (CustomAdapter) mListMappings.getAdapter();
+                apt.add(c);
             }
         });
         registerForContextMenu(mListMappings);
@@ -177,7 +183,7 @@ public class RecorderActivity extends Activity {
         //Open the map file to load the nodes id list
         Document map;
         try {
-            map = db.parse(getResources().openRawResource(R.raw.boella));
+            map = db.parse(getResources().openRawResource(R.raw.monumentale));
         } catch (SAXException e) {
             Log.e(TAG, "Map file has XML syntax errors");
             return;
@@ -336,14 +342,41 @@ public class RecorderActivity extends Activity {
 
     private void wipeMappings() {
         Log.i(TAG, "Wiping the previously stored mappings");
-        //Go through every <node> element and remove each of its children
-        NodeList nodes = mDoc.getDocumentElement().getChildNodes();
-        for(int i=0; i<nodes.getLength(); i++) {
-            NodeList uids = nodes.item(i).getChildNodes();
-            for(int j=0; j<uids.getLength(); j++) {
-                nodes.item(i).removeChild(uids.item(j));
-            }
+
+        //Open the map file to load the nodes id list
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db;
+        try {
+            db = dbf.newDocumentBuilder();
+        } catch (ParserConfigurationException e1) {
+            e1.printStackTrace();
+            return;
         }
+        Document map;
+        try {
+            map = db.parse(getResources().openRawResource(R.raw.monumentale));
+        } catch (SAXException e) {
+            Log.e(TAG, "Map file has XML syntax errors");
+            return;
+        } catch (IOException e) {
+            Log.e(TAG, "Map not found");
+            return;
+        }
+        NodeList nodes = map.getElementsByTagName("node");
+        List<String> node_ids = new LinkedList<String>();
+        for(int i=0; i<nodes.getLength(); i++) {
+            Element e = (Element) nodes.item(i);
+            node_ids.add(e.getAttribute("id"));
+        }
+
+        Element root = mDoc.createElement("mapping");
+        mDoc.appendChild(root);
+        for(String n : node_ids) {
+            Element el = mDoc.createElement("node");
+            el.setAttribute("id", n);
+            root.appendChild(el);
+        }
+        mDoc.replaceChild(root, mDoc.getDocumentElement());
         //Writeback to the xml file is done in the onStop method.
 
         //Clear the listView

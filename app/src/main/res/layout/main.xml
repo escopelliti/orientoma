@@ -37,12 +37,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Prossimo nodo"
-                android:textSize="18dp" />
+                android:textSize="18dp"
+                android:visibility="gone" />
 
             <Spinner
                 android:id="@+id/spinner_next_node"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
         </LinearLayout>
 
         <TextView
@@ -63,7 +65,8 @@
                 android:layout_height="80dp"
                 android:layout_weight="1"
                 android:text="CLEAR"
-                android:textSize="34dp" />
+                android:textSize="34dp"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/button_speech_to_text"

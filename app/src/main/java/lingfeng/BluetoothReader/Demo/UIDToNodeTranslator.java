@@ -22,7 +22,8 @@ public class UIDToNodeTranslator {
         DocumentBuilder db;
         try {
             db = dbf.newDocumentBuilder();
-            mDoc = db.parse(new File(activity.getFilesDir(), activity.getResources().getString(R.string.uid_node_map_fname)));
+            mDoc = db.parse(new File(activity.getExternalFilesDir(null), activity.getResources().getString(R.string.uid_node_map_fname)));
+            return;
         } catch (ParserConfigurationException e) {
             Log.e(TAG, "Failed creating the documentBuilder");
             return;
