@@ -38,14 +38,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Prossimo nodo"
-                android:textSize="18dp"
-                android:visibility="gone" />
+                android:textSize="18dp" />
 
             <Spinner
                 android:id="@+id/spinner_next_node"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
         <TextView
@@ -74,25 +72,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:layout_weight="1"
-                android:text="COMANDO VOCALE"
+                android:text="CV"
                 android:textSize="34dp" />
 
-            <!--            <Button
+            <Button
+                android:id="@+id/button_read_node"
                             android:layout_width="fill_parent"
                             android:layout_height="fill_parent"
-                            android:text="RN"
-                            android:id="@+id/button_read_node"
                             android:layout_weight="1"
+                android:text="RN"
                             android:textSize="34dp" />
-            -->
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
 
         </LinearLayout>
 

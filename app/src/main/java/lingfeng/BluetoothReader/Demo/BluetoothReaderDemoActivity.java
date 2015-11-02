@@ -85,7 +85,7 @@ public class BluetoothReaderDemoActivity extends Activity {
         String node_id = null;
 
         node_id = activity.translator.getNodeId(uid);
-        //node_id = uid; //TODO: Remove this when translator will be implemented
+        node_id = uid; //TODO: Remove this when translator will be implemented
         Log.d(TAG, "Read tag with UID " + uid + " that was translated to Node ID " + node_id);
         if (node_id == null) {
             Log.e(TAG, "Translator could not find a match for tag with UID " + uid);
@@ -187,16 +187,16 @@ public class BluetoothReaderDemoActivity extends Activity {
             }
         });
 
-//        mSendFakeReadButton = (Button) findViewById(R.id.button_read_node);
-//        mSendFakeReadButton.setOnClickListener(new OnClickListener() {
-//            public void onClick(View v) {
-//                if (fakeUID.length() > 0) {
-//                    navigate(fakeUID, BluetoothReaderDemoActivity.this);
-//                } else {
-//                    mTextInfo.setText("Seleziona un nodo");
-//                }
-//            }
-//        });
+        mSendFakeReadButton = (Button) findViewById(R.id.button_read_node);
+        mSendFakeReadButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                if (fakeUID.length() > 0) {
+                    navigate(fakeUID, BluetoothReaderDemoActivity.this);
+                } else {
+                    mTextInfo.setText("Seleziona un nodo");
+                }
+            }
+        });
 
         speechToTextButton = (Button) findViewById(R.id.button_speech_to_text);
         speechToTextButton.setOnClickListener(new OnClickListener() {

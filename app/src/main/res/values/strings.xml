@@ -5,7 +5,7 @@
     <!--  BluetoothChat -->
     <string name="send">Send</string>
     <string name="not_connected">Non sei connesso a un device</string>
-    <string name="bt_not_enabled_leaving">Il Bluetooth è disattivato. Chiusura dell'applicazione in corso.</string>
+    <string name="bt_not_enabled_leaving">Il Bluetooth è disattivato. Chiusura dell\'applicazione in corso.</string>
     <string name="title_connecting">in connessione...</string>
     <string name="title_connected_to">connesso: </string>
     <string name="title_not_connected">non connesso</string>
@@ -17,7 +17,7 @@
     <string name="none_found">Nessun device trovato</string>
     <string name="title_paired_devices">Devices Accoppiati</string>
     <string name="title_other_devices">Altri devices disponibili</string>
-    <string name="button_scan">Scansiona per devices</string>
+    <string name="button_scan">Cerca devices</string>
 
     <!-- Options Menu -->
     <string name="connect">Connetti a un device</string>
