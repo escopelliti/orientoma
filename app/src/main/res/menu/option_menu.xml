@@ -21,4 +21,7 @@
         android:id="@+id/discoverable"
         android:icon="@android:drawable/ic_menu_mylocation"
         android:title="@string/discoverable" />
+    <item
+        android:id="@+id/debug_view"
+        android:title="Nascondi debug output" />
 </menu>

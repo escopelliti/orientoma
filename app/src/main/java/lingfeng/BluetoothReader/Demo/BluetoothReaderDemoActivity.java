@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -499,6 +498,15 @@ public class BluetoothReaderDemoActivity extends Activity {
             case R.id.discoverable:
                 // Ensure this device is discoverable by others
                 ensureDiscoverable();
+                return true;
+            case R.id.debug_view:
+                if (mConversationView.getVisibility() == View.GONE) {
+                    mConversationView.setVisibility(View.VISIBLE);
+                    item.setTitle("Nascondi debug output");
+                } else {
+                    mConversationView.setVisibility(View.GONE);
+                    item.setTitle("Mostra debug output");
+                }
                 return true;
         }
         return false;
